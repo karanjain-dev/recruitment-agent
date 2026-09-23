@@ -1,7 +1,7 @@
 {
   "id": "demo-customer-support-mumbai-v1",
   "title": "Customer Support Associate",
-  "company": "OnlyRound Demo Company",
+  "company": "AIrecruiter Demo Company",
   "location": "Mumbai, India",
   "description": "Demonstration screening configuration for a customer support role. This is a sample interview, not an advertised vacancy or an offer of employment. Replace the approved job facts before using it for real applicants.",
   "is_demo": true,
@@ -68,7 +68,7 @@
     }
   ],
   "facts": [
-    {"key": "demo_role", "topic": "Role and demonstration status", "synonyms": ["company", "job", "role", "vacancy"], "text": "This is a demonstration interview for a customer support role at OnlyRound Demo Company, not an active job vacancy.", "category": "job"},
+    {"key": "demo_role", "topic": "Role and demonstration status", "synonyms": ["company", "job", "role", "vacancy"], "text": "This is a demonstration interview for a customer support role at AIrecruiter Demo Company, not an active job vacancy.", "category": "job"},
     {"key": "work_location", "topic": "Work location", "synonyms": ["office", "location", "remote", "hybrid"], "text": "The sample role is based in Mumbai. A real recruiter would confirm the work location and work arrangement for an actual vacancy.", "category": "job"},
     {"key": "shift_timings", "topic": "Shift schedule", "synonyms": ["night", "shift", "hours", "timings"], "text": "The sample role includes night shifts. Exact shift timings must be confirmed by the recruiter.", "category": "job"},
     {"key": "salary", "topic": "Compensation", "synonyms": ["pay", "salary", "package", "ctc"], "text": "No salary has been approved for this demonstration role. The recruiter will confirm compensation for an actual vacancy.", "category": "job"},
@@ -76,7 +76,7 @@
     {"key": "data_recording", "topic": "Saved interview information", "synonyms": ["data", "privacy", "recording", "stored"], "text": "Your messages, answer summaries, and the system's processing log are saved for this interview. Avoid sharing passwords, financial account details, or an exact residential address.", "category": "process"}
   ],
   "fixed_lines": {
-    "greeting": "Hello, I'm OnlyRound, an automated screening assistant. This is a demonstration interview, not an active vacancy. I'll ask a few questions and run a short customer support roleplay. Your responses and the processing log will be saved. You can stop or ask to continue later at any time.",
+    "greeting": "Hello, I'm AIrecruiter, an automated screening assistant. This is a demonstration interview, not an active vacancy. I'll ask a few questions and run a short customer support roleplay. Your responses and the processing log will be saved. You can stop or ask to continue later at any time.",
     "reask_prefix": "I still need an answer to this question.",
     "unclear_prefix": "I couldn't record a clear answer yet.",
     "identity_disclosure": "I'm an automated AI screening assistant, not a person. I record your responses; I don't make hiring decisions.",
