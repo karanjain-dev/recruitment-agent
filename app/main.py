@@ -22,9 +22,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
-from app.engine import (load_job, initial_state, initial_sheet, build_context,
-                        normalize, decide, check_reply, fallback_reply, assemble)
+from app.engine import load_job, initial_state, initial_sheet
 from app.model import ModelGateway, ModelError, model_ready
+from app.runtime import handle_turn
 from app.storage import (Store, Interview, Turn, Message, Answer, History, Hint,
                          CandidateQuestion, Flag, Trace, uid, save_sheet, add_history)
 
@@ -301,12 +301,6 @@ def active_attempt(db,session_id,turn_id,attempt_token):
         raise SupersededAttempt()
     return session,turn
 
-def explicit_underage(message):
-    wording=message.replace('\u2019', "'")
-    return bool(re.search(
-        r"\b(?:i am|i'm|im|my age is)\s+(?:only\s+)?(?:1[0-7]|[1-9])\b"
-        r"(?=\s*(?:$|[,.!?;:]|(?:years? old|yo|and|but)\b))",wording,re.I))
-
 @app.post('/api/sessions/{session_id}/turns')
 async def candidate_turn(session_id:str,body:TurnBody,request:Request):
     owner_id=owner(request); message=body.message.strip()
@@ -345,56 +339,15 @@ async def candidate_turn(session_id:str,body:TurnBody,request:Request):
     gateway=ModelGateway()
     try:
         await emit('harness','Session guard','completed',output={'state':state['state'],'message_id':mid,'request_id':str(body.request_id)})
-        if prepared:
-            result=prepared
-            await emit('harness','Resume prepared turn','completed',output={'reused_validated_answers':True})
-        else:
-            if state['state']=='roleplay':
-                form=await gateway.classify_roleplay(message,job['roleplay']['persona'],state.get('roleplay_last_line',''),emit)
-                form['roleplay_event']=form.pop('event',form.get('roleplay_event','roleplay_break'))
-            else:
-                context=build_context(job,state,sheet,hints,candidate_messages,message)
-                form=await gateway.understand(context,emit)
-            normal=normalize(form)
-            if 'roleplay_event' in form: normal['roleplay_event']=form['roleplay_event']
-            await emit('harness','Form normalisation','completed',input=form,output=normal)
-            # A narrow corroboration prevents a model-only age classification from
-            # becoming an automatic age-based close without explicit evidence.
-            if normal.get('flag')=='underage' and not explicit_underage(message):
-                normal['flag']='none'
-                await emit('harness','Safety corroboration','completed',output={'flag':'underage','action':'unconfirmed flag suppressed'})
-            result=decide(job,state,sheet,normal,message,mid,time.time(),hints=hints)
+        async def on_prepared(result):
             with store.tx() as db:
                 _,active=active_attempt(db,session_id,tid,attempt_token)
                 persist_result(db,session_id,tid,mid,result)
                 active.result=result
-            await emit('tool','Answer validator','completed',output={'saved':result.get('saved',[]),'history':result.get('history',[]),'hints':result.get('hints',[])})
-            await emit('tool','Job facts lookup','completed',input=normal.get('candidate_questions',[]),output={'facts':result.get('facts',[]),'unknowns':result.get('unknowns',[])})
-            await emit('harness','Progression engine','completed',output={'action':result.get('action'),'question':result.get('question'),'proposed_state':result['state'],'committed':False})
-        if result.get('action')=='roleplay_customer':
-            role=await gateway.roleplay_reply(message,job['roleplay']['persona'],state.get('roleplay_last_line',''),emit)
-            customer=role.get('customer_line','')
-            failed=[]
-            if not customer or len(customer.split())>70 or re.search(r'\b(you should|you could|correct answer|interview|candidate|score|assessment|great|perfect|excellent)\b',customer,re.I):
-                failed=['roleplay_coaching_or_format']
-                customer=job['roleplay']['safe_line']
-            await emit('harness','Roleplay reply checker','completed',input=role,output={'failed_checks':failed,'customer_line':customer})
-            result['question']=customer
-            result['state']['roleplay_last_line']=customer
-            result['state']['last_question_asked']=customer
-        speech={'acknowledgement':'','answer_text':''}
-        if result.get('path')=='B':
-            for attempt in range(2):
-                speech=await gateway.speak(result.get('saved',[]),result.get('facts',[]),result.get('unknowns',[]),emit)
-                failures=check_reply(speech,result.get('facts',[]),result.get('unknowns',[]))
-                await emit('harness','Reply checker','completed',input=speech,output={'attempt':attempt+1,'passed':not failures,'failed_checks':failures})
-                if not failures: break
-            if failures:
-                speech=fallback_reply(result.get('facts',[]),result.get('unknowns',[]))
-                await emit('harness','Fixed reply fallback','completed',output=speech)
-        else:
-            await emit('harness','Fixed wording','completed',output={'path':'A','action':result.get('action')})
-        reply=assemble(result,speech)
+        result,reply=await handle_turn(job=job,state=state,sheet=sheet,hints=hints,
+                                     candidate_messages=candidate_messages,message=message,message_id=mid,
+                                     gateway=gateway,emit=emit,now=time.time,prepared=prepared,
+                                     on_prepared=on_prepared)
         with store.tx() as db:
             active_session,turn=active_attempt(db,session_id,tid,attempt_token)
             turn.result=result; turn.reply=reply; turn.status='awaiting_delivery'; turn.error=None

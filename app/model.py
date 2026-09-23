@@ -17,12 +17,14 @@ from typing import Any, Awaitable, Callable
 
 import httpx
 
+from app.engine import FLAG_ROUTES
+
 
 Emit = Callable[..., Awaitable[None]]
 _PROMPTS = Path(__file__).resolve().parent.parent / "prompts"
 _ENDPOINT = "https://api.openai.com/v1/chat/completions"
 _DEFAULT_MODEL = "gpt-4.1-mini"
-_FLAGS = ["none", "underage", "distress", "wrong_person", "abuse", "manipulation", "identity_question"]
+_FLAGS = ["none", *FLAG_ROUTES]
 
 
 class ModelError(RuntimeError):
@@ -134,11 +136,23 @@ def _understand_context(context: dict[str, Any]) -> dict[str, Any]:
 
 class ModelGateway:
     def __init__(self, budget: CallBudget | None = None, *, client: httpx.AsyncClient | None = None,
-                 api_key: str | None = None, model: str | None = None, timeout: float = 25.0) -> None:
+                 api_key: str | None = None, model: str | None = None, timeout: float = 25.0,
+                 understand_model: str | None = None, speak_model: str | None = None,
+                 temperature: float | None = None, prompts: dict[str, str] | None = None) -> None:
         self.budget = budget if budget is not None else CallBudget()
         self.client = client
         self.api_key = (api_key if api_key is not None else os.environ.get("OPENAI_API_KEY", "")).strip()
         self.model = (model or os.environ.get("OPENAI_MODEL") or _DEFAULT_MODEL).strip()
+        self.models = {"understand": understand_model or self.model,
+                       "speak": speak_model or self.model,
+                       "roleplay_classify": understand_model or self.model,
+                       "roleplay_reply": speak_model or self.model}
+        self.temperature = temperature
+        self.prompts = dict(prompts or {})
+        if temperature is not None and (isinstance(temperature, bool) or not 0 <= temperature <= 2):
+            raise ValueError("Model temperature must be between zero and two.")
+        if any(not isinstance(value, str) or not value.strip() for value in self.prompts.values()):
+            raise ValueError("Prompt overrides must contain nonempty text.")
         if not 0 < timeout <= 90:
             raise ValueError("Model timeout must be positive and no greater than 90 seconds.")
         self.timeout_seconds = timeout
@@ -170,25 +184,31 @@ class ModelGateway:
     async def _call(self, name: str, data: dict[str, Any], schema: dict[str, Any], emit: Emit,
                     max_tokens: int) -> dict[str, Any]:
         started = time.perf_counter()
+        selected_model = self.models.get(name, self.model)
         try:
             call_number = self.budget.consume()
         except ModelError as exc:
-            await emit("model", name, "failed", input={"model": self.model, "limit": self.budget.limit},
+            await emit("model", name, "failed", input={"model": selected_model, "limit": self.budget.limit},
                        duration_ms=0, error={"code": exc.code, "message": str(exc)})
             raise
 
         messages = [
-            {"role": "system", "content": (_PROMPTS / f"{name}.md").read_text(encoding="utf-8")},
+            {"role": "system", "content": self.prompts.get(name) or (_PROMPTS / f"{name}.md").read_text(encoding="utf-8")},
             {"role": "user", "content": json.dumps(data, ensure_ascii=False, separators=(",", ":"), allow_nan=False)},
         ]
         response_format = {"type": "json_schema", "json_schema": {
             "name": f"screening_{name}", "strict": True, "schema": schema,
         }}
-        payload = {"model": self.model, "messages": messages, "response_format": response_format,
+        payload = {"model": selected_model, "messages": messages, "response_format": response_format,
                    "max_completion_tokens": max_tokens, "store": False}
-        await emit("model", name, "started", input={"model": self.model, "call_number": call_number,
+        if self.temperature is not None:
+            payload["temperature"] = self.temperature
+        await emit("model", name, "started", input={"model": selected_model, "call_number": call_number,
+                   "temperature": self.temperature,
                    "messages": messages, "response_format": response_format})
-        model_output = None
+        # Keep the chosen model on failures too: otherwise split understand/speak
+        # configurations lose their identity when a provider call times out.
+        model_output = {"model": selected_model}
         try:
             if not self.api_key:
                 raise ModelError("The interview model is not configured. Please contact the app owner.",
@@ -212,11 +232,15 @@ class ModelGateway:
                 choice = body["choices"][0]
                 message = choice["message"]
                 model_output = {
-                    "model": body.get("model", self.model),
+                    "model": body.get("model", selected_model),
                     "response_id": body.get("id"),
                     "provider_request_id": response.headers.get("x-request-id"),
                     "finish_reason": choice.get("finish_reason"),
                     "response": message.get("content"),
+                    "raw_text": message.get("content"),
+                    "usage": {key: value for key, value in (body.get("usage") or {}).items()
+                              if key in ("prompt_tokens", "completion_tokens", "total_tokens") and isinstance(value, int)}
+                    if isinstance(body.get("usage"), dict) else {},
                 }
                 if message.get("refusal"):
                     raise ModelError("The model could not process this message. Please rephrase it.", code="model_refusal")
@@ -226,6 +250,7 @@ class ModelGateway:
                 if not isinstance(raw_content, str) or len(raw_content) > 100_000:
                     raise ValueError("Unexpected response content")
                 result = json.loads(raw_content)
+                model_output["parsed_json"] = result
                 if not _validate(result, schema):
                     raise ValueError("Response did not match its schema")
             except ModelError:
@@ -237,20 +262,27 @@ class ModelGateway:
             safe_usage = {key: usage[key] for key in ("prompt_tokens", "completion_tokens", "total_tokens")
                           if isinstance(usage.get(key), int)}
             await emit("model", name, "completed", duration_ms=round((time.perf_counter() - started) * 1000),
-                       output={"model": body.get("model", self.model), "response_id": body.get("id"),
+                       output={"model": body.get("model", selected_model), "response_id": body.get("id"),
                                "provider_request_id": response.headers.get("x-request-id"),
-                               "usage": safe_usage, "response": result})
+                               "usage": safe_usage, "raw_text": raw_content, "response": result})
             return result
         except (httpx.TimeoutException, asyncio.TimeoutError) as exc:
             error = ModelError("The model took too long to respond. Please retry.", code="model_timeout", retryable=True)
-            await self._failed(name, started, error, emit)
+            await self._failed(name, started, error, emit, output=model_output)
             raise error from exc
         except httpx.HTTPError as exc:
             error = ModelError("The model provider could not be reached. Please retry.", code="model_network", retryable=True)
-            await self._failed(name, started, error, emit)
+            await self._failed(name, started, error, emit, output=model_output)
             raise error from exc
         except ModelError as exc:
             await self._failed(name, started, exc, emit, output=model_output)
+            raise
+        except Exception:
+            # Retain a terminal model event for an unexpected client failure,
+            # without logging a possibly credential-bearing exception string or
+            # changing how the existing API handles the original exception.
+            error = ModelError("The model request could not finish.", code="model_unexpected_error")
+            await self._failed(name, started, error, emit, output=model_output)
             raise
 
     @staticmethod

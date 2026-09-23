@@ -13,6 +13,7 @@ from difflib import SequenceMatcher
 import json
 from pathlib import Path
 import re
+from string import Formatter
 import unicodedata
 
 
@@ -20,7 +21,18 @@ MODEL_STATUSES = {"complete", "partial", "unclear", "conditional", "declined"}
 EVENTS = {"answer", "volunteered", "correction", "late_answer"}
 RESOLVED = {"complete", "conditional", "declined", "unclear_final", "unresolved", "skipped_time"}
 ANSWERED = {"complete", "partial", "unclear", "conditional", "declined", "needs_confirmation", "unclear_final", "unresolved"}
-FLAGS = {"underage", "distress", "wrong_person", "abuse", "manipulation", "identity_question"}
+# Understand owns classification. These routes never reclassify candidate text.
+FLAG_ROUTES = {
+    "underage": {"action": "close", "line": "close_underage"},
+    "distress": {"action": "close", "line": "close_distress"},
+    "wrong_person": {"action": "close", "line": "close_wrong_person"},
+    "abuse": {"action": "warn", "line": "abuse_warning", "close_after": 2,
+              "close_line": "close_abuse"},
+    "manipulation": {"action": "continue", "line": "manipulation_reply"},
+    "identity_question": {"action": "continue", "line": "identity_disclosure"},
+}
+FLAGS = set(FLAG_ROUTES)
+UNANSWERED_TURN_LIMIT = 3
 QUESTION_TYPES = {"job", "process", "clarify", "outcome", "assessment_hint"}
 
 
@@ -56,7 +68,8 @@ def initial_state(job: dict, now: float) -> dict:
         "state": "open", "mode": "screening", "current_criterion_id": first["id"],
         "pending_action": "ask", "last_question_asked": first["question_text"],
         "started_at": now, "deadline_at": now + job.get("duration_seconds", 900),
-        "last_candidate_msg_at": now, "counters": {"abuse_count": 0, "question_only_streak": 0},
+        "last_candidate_msg_at": now, "counters": {"abuse_count": 0, "question_only_streak": 0,
+                                                   "unanswered_streak": 0},
         "roleplay_turns": 0, "roleplay_breaks": 0, "roleplay_done": False,
         "roleplay_last_line": None, "callback_time": None, "paused_at": None,
         "close_reason": None, "seen_flags": [], "confirmations_asked": [],
@@ -103,6 +116,24 @@ def build_context(job, state, sheet, hints, candidate_messages, latest) -> dict:
 
 def _string(value, default="") -> str:
     return value.strip() if isinstance(value, str) else default
+
+
+def _render_question(template, row) -> str | None:
+    """Only substitute supported fields backed by a concrete saved answer."""
+    if not isinstance(template, str) or not template.strip():
+        return None
+    try:
+        fields = list(Formatter().parse(template))
+        if any(field is not None and (field != "value" or spec or conversion)
+               for _, field, spec, conversion in fields):
+            return None
+        if any(field is not None for _, field, _, _ in fields):
+            if (not row or not _string(row.get("value")) or row.get("implied")
+                    or row.get("missing_part") or row.get("status") not in {"complete", "needs_confirmation"}):
+                return None
+        return template.format(value=(row or {}).get("value", ""))
+    except (ValueError, KeyError, IndexError):
+        return None
 
 
 def normalize(form) -> dict:
@@ -185,6 +216,7 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
     state.setdefault("counters", {})
     state["counters"].setdefault("abuse_count", 0)
     state["counters"].setdefault("question_only_streak", 0)
+    state["counters"].setdefault("unanswered_streak", state["counters"]["question_only_streak"])
     state.setdefault("seen_flags", [])
     state.setdefault("confirmations_asked", [])
     state.setdefault("interrupted_questions", {})
@@ -203,23 +235,23 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         result["prefix"].append(fixed["callback_resume"])
     state["last_candidate_msg_at"] = now
     flag = form["flag"]
+    route = FLAG_ROUTES.get(flag)
     flag_key = f"{message_id}:{flag}"
     is_new_flag = flag != "none" and flag_key not in state["seen_flags"]
     if is_new_flag:
         state["seen_flags"].append(flag_key)
-        action = "close" if flag in {"underage", "distress", "wrong_person"} else "continue"
-        if flag == "abuse":
-            state["counters"]["abuse_count"] += 1
-            action = "close" if state["counters"]["abuse_count"] >= 2 else "warn"
-        result["flags"].append({"type": flag, "quote": message, "message_id": message_id, "action": action})
-    if flag == "identity_question":
-        result["prefix"].append(fixed["identity_disclosure"])
-    elif flag == "manipulation":
-        result["prefix"].append(fixed["manipulation_reply"])
-    elif flag == "abuse" and state["counters"]["abuse_count"] < 2:
-        result["prefix"].append(fixed["abuse_warning"])
+        if route.get("close_after"):
+            counter = f"{flag}_count"
+            state["counters"][counter] = state["counters"].get(counter, 0) + 1
+    flag_action = route["action"] if route else None
+    if route and route.get("close_after") and state["counters"].get(f"{flag}_count", 0) >= route["close_after"]:
+        flag_action = "close"
+    if is_new_flag:
+        result["flags"].append({"type": flag, "quote": message, "message_id": message_id, "action": flag_action})
+    if route and flag_action != "close":
+        result["prefix"].append(fixed[route["line"]])
 
-    closing_flag = flag in {"underage", "distress", "wrong_person"}
+    closing_flag = flag_action == "close"
     attempted_current = False
     accepted_elsewhere = []
     changed_criteria = set()
@@ -304,6 +336,7 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
             changed_criteria.add(cid)
             if cid == original_id:
                 attempted_current = True
+                state["counters"]["unanswered_streak"] = 0
             else:
                 accepted_elsewhere.append(event)
             for hint in hints or []:
@@ -365,13 +398,35 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         elif action == "reask" and resumed and cid == original_id and original_question:
             action = original_action or action
             question = original_question
+        elif (action == "reask" and cid == original_id and original_action == "followup"
+              and original_question and not clarify):
+            action, question = "followup", original_question
+        row = sheet.get(cid)
+        # Old sessions can still contain an implied confirmation. Resume them
+        # with a clarification, never by asserting an unknown start date.
+        if str(action).startswith("confirm") and row and (
+                row.get("implied") or row.get("missing_part") or not _string(row.get("value"))):
+            question = criteria[cid].get("missing_parts", {}).get(row.get("missing_part")) or criteria[cid]["simple_question_text"]
+            action = "followup"
+        rendered = _render_question(question, row)
+        if rendered is None:
+            if cid is None:
+                raise ValueError("Fixed response has an unsupported or unfilled template field")
+            question = criteria[cid].get("missing_parts", {}).get((row or {}).get("missing_part")) or criteria[cid]["simple_question_text"]
+            rendered = _render_question(question, None)
+            if rendered is None:
+                raise ValueError("Clarification question must be a complete fixed response")
+            action = "followup" if row and row["status"] in {"partial", "unclear"} else "reask"
+        question = rendered
         state["current_criterion_id"] = cid
         state["pending_action"] = action
         state["last_question_asked"] = question
         if cid != previous_id:
             state["counters"]["question_only_streak"] = 0
+            state["counters"]["unanswered_streak"] = 0
         result["action"] = action
         result["question"] = question
+        force_a = force_a or route is not None
         result["path"] = "B" if (result["saved"] or result["facts"] or result["unknowns"]) and not force_a else "A"
         if force_a:
             # Fixed paths still answer grounded questions without another model.
@@ -390,14 +445,14 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         state["state"] = "closed"
         state["mode"] = "closed"
         state["close_reason"] = reason
-        return finish("close", fixed.get(f"close_{reason}", fixed["close_normal"]), force_a=not allow_speech)
+        line = (route.get("close_line", route["line"]) if route and reason == flag
+                else f"close_{reason}")
+        return finish("close", fixed.get(line, fixed["close_normal"]), force_a=not allow_speech)
 
     if closing_flag:
         return close(flag)
     if form["stop"] or form["roleplay_event"] == "stop":
         return close("stop")
-    if flag == "abuse" and state["counters"]["abuse_count"] >= 2:
-        return close("abuse")
     if form["callback"]["requested"]:
         state["resume_state"] = state["state"]
         state["resume_action"] = original_action
@@ -414,6 +469,39 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         state["mode"] = "qa"
         return finish("qa", fixed["candidate_qa_prompt"])
 
+    def followup(c):
+        cid, row = c["id"], sheet[c["id"]]
+        if row["followups_used"] >= c["followup_allowance"]:
+            update_row(cid, status="unclear_final")
+            return None
+        update_row(cid, followups_used=row["followups_used"] + 1)
+        # An implied answer is partial evidence, not a value to confirm.
+        question = c.get("missing_parts", {}).get(row.get("missing_part"))
+        if question:
+            return finish("followup", question, cid)
+        result["prefix"].append(fixed["unclear_prefix"])
+        return finish("followup", c["simple_question_text"], cid)
+
+    def confirm_criterion(c):
+        cid, row = c["id"], sheet[c["id"]]
+        needs = row["status"] == "needs_confirmation"
+        volunteered = (c["is_knockout"] and row["status"] == "complete"
+                       and row["obtained_via"] == "volunteered" and not row["confirmed"])
+        token = f"{cid}:{row.get('message_id')}"
+        if not (needs or volunteered) or token in state["confirmations_asked"]:
+            return None
+        state["confirmations_asked"].append(token)
+        if original_id and cid != original_id and sheet[original_id]["status"] not in RESOLVED:
+            if not attempted_current and original_question:
+                state["interrupted_questions"][original_id] = {
+                    "action": original_action or "ask", "question": original_question,
+                }
+            else:
+                state["interrupted_questions"].pop(original_id, None)
+        volunteered = row["obtained_via"] == "volunteered"
+        return finish("confirm_volunteered" if volunteered else "confirm",
+                      c["confirm_volunteered_text"] if volunteered else c["confirm_text"], cid)
+
     def ask_criterion(c):
         cid = c["id"]
         row = sheet[cid]
@@ -425,34 +513,33 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         if suspended:
             return finish(suspended["action"], suspended["question"], cid)
         if row["status"] in {"partial", "unclear"}:
-            if row["followups_used"] >= c["followup_allowance"]:
-                update_row(cid, status="unclear_final")
-                return None
-            update_row(cid, followups_used=row["followups_used"] + 1)
-            if row["implied"] and not c["is_knockout"] and c.get("confirm_implied_text"):
-                return finish("confirm_implied", c["confirm_implied_text"], cid)
-            if row.get("missing_part") in c.get("missing_parts", {}):
-                return finish("followup", c["missing_parts"][row["missing_part"]], cid)
-            result["prefix"].append(fixed["unclear_prefix"])
-            return finish("followup", c["question_text"], cid)
+            return followup(c)
         return finish("ask", c["question_text"], cid)
 
     def after_roleplay():
         state["state"] = "open"
         if state["deadline_at"] - now > 180:
             for c in _ordered(job):
-                if not c["must_have"] and sheet[c["id"]]["status"] not in RESOLVED:
-                    selected = ask_criterion(c)
+                if not c["must_have"]:
+                    selected = confirm_criterion(c)
                     if selected is not None:
                         return selected
+                    if sheet[c["id"]]["status"] not in RESOLVED:
+                        selected = ask_criterion(c)
+                        if selected is not None:
+                            return selected
         return ask_qa()
 
     def advance():
         for c in _ordered(job):
-            if c["must_have"] and sheet[c["id"]]["status"] not in RESOLVED:
-                selected = ask_criterion(c)
+            if c["must_have"]:
+                selected = confirm_criterion(c)
                 if selected is not None:
                     return selected
+                if sheet[c["id"]]["status"] not in RESOLVED:
+                    selected = ask_criterion(c)
+                    if selected is not None:
+                        return selected
         # This ends the conversation politely; it never generates a verdict.
         if any(c["is_knockout"] and sheet[c["id"]]["status"] == "complete" and sheet[c["id"]]["yes_no"] == "no" and sheet[c["id"]]["confirmed"] for c in job["criteria"]):
             return close("normal", allow_speech=True)
@@ -465,7 +552,7 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         return after_roleplay()
 
     if state["mode"] == "roleplay":
-        if resumed or flag in {"abuse", "identity_question", "manipulation"}:
+        if resumed or route:
             return finish("roleplay_break", state["roleplay_last_line"], force_a=True)
         if form["roleplay_event"] != "roleplay_reply":
             state["roleplay_breaks"] += 1
@@ -485,32 +572,16 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         state["roleplay_last_line"] = form["customer_line"] or job["roleplay"]["safe_line"]
         return finish("roleplay_customer", state["roleplay_last_line"], force_a=True)
 
-    # Confirmation interrupts other questions, but each refusal receives one
-    # neutral confirmation only. A changed later answer may warrant a fresh one.
+    # A new volunteered answer waits for its turn in criterion order. A
+    # correction to a previously answered criterion may still require an
+    # immediate neutral confirmation, preserving the interrupted question.
     for c in _ordered(job):
         cid, row = c["id"], sheet[c["id"]]
-        needs = row["status"] == "needs_confirmation"
-        volunteered = c["is_knockout"] and row["status"] == "complete" and row["obtained_via"] == "volunteered" and not row["confirmed"]
-        if needs or volunteered:
-            token = f"{cid}:{row.get('message_id')}"
-            if token not in state["confirmations_asked"]:
-                state["confirmations_asked"].append(token)
-                if original_id and cid != original_id and sheet[original_id]["status"] not in RESOLVED:
-                    if not attempted_current and original_question:
-                        # A correction to another answer did not answer the
-                        # already-delivered follow-up. Resume that exact prompt
-                        # after the higher-priority confirmation, without
-                        # consuming its allowance again.
-                        state["interrupted_questions"][original_id] = {
-                            "action": original_action or "ask", "question": original_question,
-                        }
-                    else:
-                        # This message did attempt the original question. When
-                        # returning, schedule its newly needed follow-up using
-                        # the updated row and its remaining allowance.
-                        state["interrupted_questions"].pop(original_id, None)
-                volunteered = row["obtained_via"] == "volunteered"
-                return finish("confirm_volunteered" if volunteered else "confirm", c["confirm_volunteered_text"] if volunteered else c["confirm_text"], cid)
+        if cid != original_id and row["obtained_via"] == "volunteered":
+            continue
+        selected = confirm_criterion(c)
+        if selected is not None:
+            return selected
 
     if state["mode"] == "qa":
         if resumed and not result["questions"] and not result["saved"]:
@@ -527,47 +598,39 @@ def decide(job, state, sheet, form, message, message_id, now, hints=None) -> dic
         return advance()
     if attempted_current:
         state["counters"]["question_only_streak"] = 0
+        state["counters"]["unanswered_streak"] = 0
         if row["status"] in RESOLVED:
             return advance()
-        if clarify or flag in {"abuse", "identity_question", "manipulation"}:
+        if clarify or route:
             return finish("reask", current["simple_question_text"] if clarify else current["question_text"], original_id, force_a=True)
         if str(original_action).startswith("confirm") and current["is_knockout"]:
             # An ambiguous confirmation must not be interpreted as a refusal.
             update_row(original_id, status="unclear_final", confirmed=False)
             return advance()
-        if row["followups_used"] < current["followup_allowance"]:
-            update_row(original_id, followups_used=row["followups_used"] + 1)
-            if row["implied"] and not current["is_knockout"] and current.get("confirm_implied_text"):
-                return finish("confirm_implied", current["confirm_implied_text"], original_id)
-            if row.get("missing_part") in current.get("missing_parts", {}):
-                return finish("followup", current["missing_parts"][row["missing_part"]], original_id)
-            result["prefix"].append(fixed["unclear_prefix"])
-            return finish("followup", current["question_text"], original_id)
-        update_row(original_id, status="unclear_final")
-        return advance()
+        return followup(current) or advance()
 
-    if flag in {"abuse", "identity_question", "manipulation"} or resumed:
+    if route or resumed:
         state["counters"]["question_only_streak"] = 0
         return finish("reask", current["question_text"], original_id, force_a=True)
+    # Repeating an unanswered question never spends its clarification budget.
+    # Count all consecutive no-answer turns separately, including mixed side
+    # questions and off-target answers, so alternating them cannot loop forever.
+    state["counters"]["unanswered_streak"] += 1
+    if state["counters"]["unanswered_streak"] >= UNANSWERED_TURN_LIMIT:
+        update_row(original_id, status="unresolved", confirmed=False)
+        return advance()
     if accepted_elsewhere and any(event not in {"correction", "late_answer"} for event in accepted_elsewhere):
-        update_row(original_id, status="off_target")
+        if row["status"] in {"not_asked", "asked"}:
+            update_row(original_id, status="off_target")
         state["counters"]["question_only_streak"] = 0
         result["prefix"].append(fixed["reask_prefix"])
         return finish("reask", current["simple_question_text"] if clarify else current["question_text"], original_id, force_a=True)
     if result["questions"] or accepted_elsewhere:
         state["counters"]["question_only_streak"] += 1
-        if state["counters"]["question_only_streak"] >= 3:
-            update_row(original_id, status="unresolved")
-            return advance()
         return finish("reask", current["simple_question_text"] if clarify else current["question_text"], original_id, force_a=clarify)
-    # Empty/unusable forms are off-topic, unlike an answer to another criterion.
     state["counters"]["question_only_streak"] = 0
-    if row["followups_used"] < current["followup_allowance"]:
-        update_row(original_id, followups_used=row["followups_used"] + 1)
-        result["prefix"].append(fixed["reask_prefix"])
-        return finish("reask", current["question_text"], original_id, force_a=True)
-    update_row(original_id, status="unresolved")
-    return advance()
+    result["prefix"].append(fixed["reask_prefix"])
+    return finish("reask", current["question_text"], original_id, force_a=True)
 
 
 def _fact_texts(facts) -> list[str]:
