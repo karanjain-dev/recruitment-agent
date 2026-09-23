@@ -75,13 +75,16 @@ class ConversationEngineTests(unittest.TestCase):
         self.assertEqual(self.sheet["night_shifts"]["condition"], "cab provided")
         self.assertEqual(result["unknowns"][0]["fact_key"], "unknown")
 
-    def test_implied_then_explicit_confirmation(self):
+    def test_implied_answer_requests_timeframe_before_saving_explicit_answer(self):
         self.on("notice_period")
         result = self.turn("I'm a fresher.", [self.answer("notice_period", "I'm a fresher", "complete", implied=True)])
         self.assertEqual(self.sheet["notice_period"]["status"], "partial")
-        self.assertEqual(result["action"], "confirm_implied")
+        self.assertEqual(result["action"], "followup")
+        self.assertEqual(result["question"], self.criterion("notice_period")["simple_question_text"])
+        self.assertEqual(self.sheet["notice_period"]["followups_used"], 1)
         result = self.turn("Yes, right away.", [self.answer("notice_period", "Yes, right away")])
-        self.assertEqual(self.sheet["notice_period"]["obtained_via"], "confirmed")
+        self.assertEqual(self.sheet["notice_period"]["obtained_via"], "asked")
+        self.assertEqual(self.sheet["notice_period"]["status"], "complete")
 
     def test_correction_and_current_answer_keep_prior_history(self):
         self.resolve_must_haves()
@@ -153,10 +156,14 @@ class ConversationEngineTests(unittest.TestCase):
         self.assertEqual(self.sheet["experience"]["followups_used"], 0)
         self.assertIn(self.job["fixed_lines"]["identity_disclosure"], result["prefix"])
 
-    def test_off_topic_uses_followup_then_unresolved(self):
+    def test_off_topic_uses_separate_repeat_limit_then_unresolved(self):
         self.turn("Hello? Can you hear me?")
-        self.assertEqual(self.sheet["experience"]["followups_used"], 1)
+        self.assertEqual(self.sheet["experience"]["followups_used"], 0)
+        self.assertEqual(self.state["counters"]["unanswered_streak"], 1)
         self.turn("Hello?")
+        self.assertEqual(self.state["current_criterion_id"], "experience")
+        self.assertEqual(self.sheet["experience"]["followups_used"], 0)
+        self.turn("Still there?")
         self.assertEqual(self.sheet["experience"]["status"], "unresolved")
         self.assertEqual(self.state["current_criterion_id"], "location")
 
@@ -323,31 +330,33 @@ class ConversationEngineTests(unittest.TestCase):
         self.assertEqual(result["hints"][0]["criterion_id"], "notice_period")
         self.assertEqual(result["saved"], [])
 
-    def test_volunteered_yes_knockout_gets_neutral_confirmation(self):
+    def test_volunteered_yes_waits_for_criterion_order_then_gets_confirmation(self):
         result = self.turn("Two years in support and I can do nights", [self.answer("experience", "Two years in support"), self.answer("night_shifts", "I can do nights", event="volunteered", yes_no="yes")])
+        self.assertEqual(self.state["current_criterion_id"], "location")
+        self.assertEqual(result["action"], "ask")
+        result = self.turn("Andheri", [self.answer("location", "Andheri")])
         self.assertEqual(result["action"], "confirm_volunteered")
+        self.assertEqual(self.state["current_criterion_id"], "night_shifts")
         self.assertFalse(self.sheet["night_shifts"]["confirmed"])
 
-    def test_partial_followup_scheduled_after_volunteered_confirmation(self):
-        self.turn("Two years, and I can work nights", [self.answer("experience", "Two years", "partial", missing_part="work_type"), self.answer("night_shifts", "I can work nights", event="volunteered", yes_no="yes")])
-        self.assertEqual(self.sheet["experience"]["followups_used"], 0)
-        result = self.turn("Yes, I can work nights", [self.answer("night_shifts", "Yes, I can work nights", yes_no="yes")])
+    def test_partial_followup_takes_priority_over_volunteered_confirmation(self):
+        result = self.turn("Two years, and I can work nights", [self.answer("experience", "Two years", "partial", missing_part="work_type"), self.answer("night_shifts", "I can work nights", event="volunteered", yes_no="yes")])
         self.assertEqual(result["question"], self.criterion("experience")["missing_parts"]["work_type"])
         self.assertEqual(self.sheet["experience"]["followups_used"], 1)
+        self.assertEqual(self.state["current_criterion_id"], "experience")
+        self.assertEqual(self.state["confirmations_asked"], [])
 
-    def test_interrupted_delivered_followup_is_repeated_without_extra_allowance(self):
+    def test_volunteered_answer_preserves_delivered_followup_without_extra_allowance(self):
         self.turn("Two years", [self.answer("experience", "Two years", "partial", missing_part="work_type")])
-        self.turn("I can work nights", [self.answer("night_shifts", "I can work nights", event="volunteered", yes_no="yes")])
-        result = self.turn("Yes, I can work nights", [self.answer("night_shifts", "Yes, I can work nights", yes_no="yes")])
+        result = self.turn("I can work nights", [self.answer("night_shifts", "I can work nights", event="volunteered", yes_no="yes")])
         self.assertEqual(result["question"], self.criterion("experience")["missing_parts"]["work_type"])
         self.assertEqual(result["action"], "followup")
         self.assertEqual(self.sheet["experience"]["followups_used"], 1)
         self.assertEqual(self.sheet["experience"]["status"], "partial")
 
-    def test_exhausted_partial_is_final_after_confirmation_interrupts_latest_attempt(self):
+    def test_exhausted_partial_advances_in_order_despite_volunteered_answer(self):
         self.turn("Two years", [self.answer("experience", "Two years", "partial", missing_part="work_type")])
         self.turn("Just some work, and I can do nights", [self.answer("experience", "Just some work", "partial", missing_part="work_type"), self.answer("night_shifts", "I can do nights", event="volunteered", yes_no="yes")])
-        self.turn("Yes, I can do nights", [self.answer("night_shifts", "Yes, I can do nights", yes_no="yes")])
         self.assertEqual(self.sheet["experience"]["status"], "unclear_final")
         self.assertEqual(self.state["current_criterion_id"], "location")
 
@@ -398,7 +407,11 @@ class ConversationEngineTests(unittest.TestCase):
         self.turn("What's the salary?", candidate_questions=[{"text": "What's the salary?", "type": "job", "fact_key": "salary"}])
         self.turn("Hello")
         self.turn("What's the salary?", candidate_questions=[{"text": "What's the salary?", "type": "job", "fact_key": "salary"}])
-        self.assertEqual(self.state["counters"]["question_only_streak"], 1)
+        # Alternating questions and empty replies still hits the total no-answer
+        # limit, without spending the criterion's clarification allowance.
+        self.assertEqual(self.state["current_criterion_id"], "location")
+        self.assertEqual(self.sheet["experience"]["status"], "unresolved")
+        self.assertEqual(self.sheet["experience"]["followups_used"], 0)
 
     def test_late_answer_rules_and_hint_resolution(self):
         self.sheet["location"]["status"] = "unresolved"
@@ -410,6 +423,95 @@ class ConversationEngineTests(unittest.TestCase):
         self.on("notice_period")
         result = decide(self.job, self.state, self.sheet, {"answers": [self.answer("notice_period", "30 days")]}, "30 days", "new-message", 1030, hints=[{"criterion_id": "notice_period", "message_id": "earlier", "quote": "Some time", "resolved": False}])
         self.assertTrue(result["hints"][0]["resolved"])
+
+    def test_volunteered_no_waits_until_location_is_answered(self):
+        self.sheet["experience"]["status"] = "complete"
+        self.on("location")
+        result = self.turn("I cannot work nights", [self.answer("night_shifts", "I cannot work nights", event="volunteered", yes_no="no")])
+        self.assertEqual(result["action"], "reask")
+        self.assertEqual(self.state["current_criterion_id"], "location")
+        self.assertEqual(self.sheet["night_shifts"]["status"], "needs_confirmation")
+        self.assertEqual(self.sheet["location"]["followups_used"], 0)
+        result = self.turn("Andheri", [self.answer("location", "Andheri")])
+        self.assertEqual(result["action"], "confirm_volunteered")
+        self.turn("No, I cannot", [self.answer("night_shifts", "No, I cannot", yes_no="no")])
+        self.assertTrue(self.sheet["night_shifts"]["confirmed"])
+        self.assertEqual(self.state["current_criterion_id"], "notice_period")
+
+    def test_correction_can_interrupt_and_resume_exact_followup(self):
+        self.sheet["night_shifts"].update(status="complete", value="Willing", quote="Yes", yes_no="yes", obtained_via="asked")
+        self.turn("Two years", [self.answer("experience", "Two years", "partial", missing_part="work_type")])
+        result = self.turn("Actually I cannot work nights", [self.answer("night_shifts", "I cannot work nights", event="correction", yes_no="no")])
+        self.assertEqual(result["action"], "confirm")
+        result = self.turn("No nights", [self.answer("night_shifts", "No nights", yes_no="no")])
+        self.assertEqual(result["action"], "followup")
+        self.assertEqual(result["question"], self.criterion("experience")["missing_parts"]["work_type"])
+        self.assertEqual(self.sheet["experience"]["followups_used"], 1)
+
+    def test_empty_form_preserves_followup_and_remaining_evidence(self):
+        self.turn("Two years", [self.answer("experience", "Two years", "partial", missing_part="work_type")])
+        result = self.turn("Can you hear me?")
+        self.assertEqual(result["question"], self.criterion("experience")["missing_parts"]["work_type"])
+        self.assertEqual(self.sheet["experience"]["status"], "partial")
+        self.assertEqual(self.sheet["experience"]["followups_used"], 1)
+        self.turn("Two years in support", [self.answer("experience", "Two years in support")])
+        self.assertEqual(self.sheet["experience"]["status"], "complete")
+        self.assertEqual(self.state["counters"]["unanswered_streak"], 0)
+
+    def test_implied_timeframe_follows_up_even_with_confirmation_template(self):
+        self.on("notice_period")
+        self.criterion("notice_period")["confirm_implied_text"] = "So you can join {value}, is that right?"
+        result = self.turn("I left my job last month", [self.answer("notice_period", "I left my job last month", "partial", implied=True, missing_part="start_time")])
+        self.assertEqual(result["action"], "followup")
+        self.assertEqual(result["question"], self.criterion("notice_period")["missing_parts"]["start_time"])
+        self.assertNotIn("{value}", assemble(result))
+
+    def test_resuming_legacy_implied_confirmation_asks_for_missing_timeframe(self):
+        self.on("notice_period")
+        self.state.update(pending_action="confirm_implied", last_question_asked="So you can join {value}, is that right?")
+        self.sheet["notice_period"].update(status="partial", value="Left job", implied=True, missing_part="start_time", followups_used=1)
+        result = self.turn("What did you mean?", candidate_questions=[{"text": "What did you mean?", "type": "clarify"}])
+        self.assertEqual(result["action"], "followup")
+        self.assertEqual(result["question"], self.criterion("notice_period")["missing_parts"]["start_time"])
+        self.assertEqual(self.sheet["notice_period"]["followups_used"], 1)
+
+    def test_confirmation_template_uses_concrete_value(self):
+        self.on("night_shifts")
+        self.criterion("night_shifts")["confirm_text"] = "Did you say: {value}?"
+        result = self.turn("No night shifts", [self.answer("night_shifts", "No night shifts", yes_no="no")])
+        self.assertEqual(result["question"], "Did you say: No night shifts?")
+        self.assertNotIn("{value}", self.state["last_question_asked"])
+
+    def test_unsupported_template_field_uses_fixed_clarification(self):
+        self.on("night_shifts")
+        self.criterion("night_shifts")["confirm_text"] = "Is {invented_field} correct?"
+        result = self.turn("No night shifts", [self.answer("night_shifts", "No night shifts", yes_no="no")])
+        self.assertEqual(result["question"], self.criterion("night_shifts")["simple_question_text"])
+        self.assertNotIn("{invented_field}", assemble(result))
+        self.assertFalse(self.sheet["night_shifts"]["confirmed"])
+
+    def test_continuing_tag_with_answer_still_uses_fixed_wording(self):
+        result = self.turn("Two years in support. Are you AI?", [self.answer("experience", "Two years in support")], flag="identity_question")
+        self.assertEqual(result["path"], "A")
+        self.assertEqual(self.sheet["experience"]["status"], "complete")
+        self.assertEqual(self.state["current_criterion_id"], "location")
+        self.assertIn(self.job["fixed_lines"]["identity_disclosure"], assemble(result))
+
+    def test_automatic_tag_routes_apply_during_roleplay(self):
+        for flag, key in [("underage", "close_underage"), ("identity_question", "identity_disclosure")]:
+            with self.subTest(flag=flag):
+                state = deepcopy(self.state)
+                state.update(state="roleplay", mode="roleplay", roleplay_last_line="Where is my order?")
+                result = decide(self.job, state, self.sheet, {"flag": flag}, "Non-English flagged message", "tagged", 1010)
+                self.assertIn(self.job["fixed_lines"][key], assemble(result))
+                self.assertEqual(result["path"], "A")
+
+    def test_old_state_question_streak_is_preserved(self):
+        self.state["counters"].pop("unanswered_streak")
+        self.state["counters"]["question_only_streak"] = 2
+        self.turn("Salary?", candidate_questions=[{"text": "Salary?", "type": "job", "fact_key": "salary"}])
+        self.assertEqual(self.sheet["experience"]["status"], "unresolved")
+        self.assertEqual(self.sheet["experience"]["followups_used"], 0)
 
 
 if __name__ == "__main__":
