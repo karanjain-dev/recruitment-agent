@@ -1,8 +1,8 @@
-/* OnlyRound conversation studio. The server owns every interview decision. */
+/* AIrecruiter conversation studio. The server owns every interview decision. */
 'use strict';
 
 const $ = (id) => document.getElementById(id);
-const STORAGE_PREFIX = 'onlyround.v1.';
+const STORAGE_PREFIX = 'AIrecruiter.v1.';
 const state = {
   bootstrap: null, sessions: [], snapshot: null, activeId: null, activeTab: 'answers',
   busy: false, creating: false, polling: null, pollingBusy: false, sending: new Set(),
@@ -13,6 +13,31 @@ const state = {
 
 class APIError extends Error {
   constructor(message, status, detail) { super(message); this.status = status; this.detail = detail; }
+}
+
+function migrateStoredRequests() {
+  // Keep recovery keys when the studio name changes without resending a new request.
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  try {
+    for (const sourceKey of Object.keys(localStorage)) {
+      if (sourceKey.startsWith(STORAGE_PREFIX)) continue;
+      const match = sourceKey.match(/^[^.]+\.v1\.(activeSession|newSessionRequest|pending\.[0-9a-f-]+)$/i);
+      if (!match) continue;
+      try {
+        const raw = localStorage.getItem(sourceKey);
+        const value = JSON.parse(raw);
+        const key = match[1];
+        const sessionId = key.startsWith('pending.') ? key.slice(8) : null;
+        const valid = sessionId
+          ? uuidPattern.test(sessionId) && value?.session_id === sessionId && uuidPattern.test(value?.request_id) && typeof value?.message === 'string'
+          : typeof value === 'string' && uuidPattern.test(value);
+        if (!valid) continue;
+        const destinationKey = STORAGE_PREFIX + key;
+        if (localStorage.getItem(destinationKey) === null) localStorage.setItem(destinationKey, raw);
+        localStorage.removeItem(sourceKey);
+      } catch { /* Retain the source when browser storage cannot be updated. */ }
+    }
+  } catch { /* Storage may be unavailable. */ }
 }
 
 function storageGet(key) {
@@ -349,7 +374,7 @@ function renderMessages() {
       avatar.setAttribute('aria-hidden', 'true');
       const body = node('div', 'message-body');
       const meta = node('div', 'message-meta');
-      meta.append(node('strong', 'message-name', candidate ? 'You' : 'OnlyRound'));
+      meta.append(node('strong', 'message-name', candidate ? 'You' : 'AIrecruiter'));
       if (!candidate) meta.append(node('span', 'message-tag', 'Interview agent'));
       meta.append(node('time', 'message-time', timeLabel(message.created_at)));
       body.append(meta, node('p', 'message-text', message.content));
@@ -719,8 +744,8 @@ function openDialog(type) {
       content.append(facts);
     }
   } else {
-    $('dialog-eyebrow').textContent = 'HOW ONLYROUND WORKS';
-    content.append(node('h2', '', 'A conversation you can follow.'), node('p', '', 'OnlyRound conducts a structured first screening interview. The model interprets the candidate’s message and writes a short acknowledgement. Code validates the proposed answers, maintains the record, and chooses the next approved question.'), node('p', '', 'The answer sheet keeps the candidate’s own supporting words. Live harness shows actual model calls and code steps, including their inputs, outputs, and timing. History retains both accepted changes and rejected proposals.'), harnessMap(), node('p', 'dialog-notice', 'This version covers the bot and its tool interaction. It does not score candidates, produce hiring judgments, or run evaluations.'));
+    $('dialog-eyebrow').textContent = 'HOW AIrecruiter WORKS';
+    content.append(node('h2', '', 'A conversation you can follow.'), node('p', '', 'AIrecruiter conducts a structured first screening interview. The model interprets the candidate’s message and writes a short acknowledgement. Code validates the proposed answers, maintains the record, and chooses the next approved question.'), node('p', '', 'The answer sheet keeps the candidate’s own supporting words. Live harness shows actual model calls and code steps, including their inputs, outputs, and timing. History retains both accepted changes and rejected proposals.'), harnessMap(), node('p', 'dialog-notice', 'This version covers the bot and its tool interaction. It does not score candidates, produce hiring judgments, or run evaluations.'));
   }
   $('detail-dialog').showModal();
 }
@@ -740,7 +765,7 @@ $('retry-turn').addEventListener('click', retryCurrent);
 $('export').addEventListener('click', () => {
   if (!state.activeId) return;
   const link = node('a'); link.href = `/api/sessions/${encodeURIComponent(state.activeId)}/export`;
-  link.download = `onlyround-${state.activeId}.json`; document.body.append(link); link.click(); link.remove();
+  link.download = `AIrecruiter-${state.activeId}.json`; document.body.append(link); link.click(); link.remove();
 });
 for (const tab of document.querySelectorAll('[data-tab]')) {
   tab.addEventListener('click', () => selectTab(tab.dataset.tab));
@@ -798,4 +823,5 @@ document.addEventListener('visibilitychange', () => {
 });
 setInterval(updateClock, 1000);
 selectTab('answers');
+migrateStoredRequests();
 boot();
