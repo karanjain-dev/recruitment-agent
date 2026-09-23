@@ -8,8 +8,10 @@ The user's latest instruction takes precedence over the original spec: there is 
 - Candidate evidence is saved before delivery; next-question state and follow-up consumption commit after delivery acknowledgement.
 - Quote repair is conservative and records the repair. It cannot establish that the interpretation is correct.
 - Path B facts must use the provided text, which is stricter than merely checking numeric claims. This prevents unsupported nonnumeric additions.
-- Safety flags are not diagnoses. Underage flags require explicit age wording; distress and other model flags remain best effort. The bot does not rank or select people.
+- Safety flags are not diagnoses. Understand classifies supported tags from candidate evidence in any language, and the harness routes them directly without phrase matching. Distress and other classifications remain best effort. The bot does not rank or select people.
 - Inactive open interviews close after 30 minutes. Callback pauses remain resumable and do not schedule a call.
 - Session scope uses a signed browser-owner cookie behind a studio access code. This is a private working release, not a multi-tenant hiring platform.
 - The database records schema versions 1 (initial tables) and 2 (the per-attempt token that prevents an expired request from overwriting its retry). Startup applies the additive version 2 migration to an existing version 1 database without deleting records. Schema creation and this migration are idempotent. Later schema changes must introduce explicit migrations instead of deleting or rebuilding production tables.
 - Six provider calls is the enforced upper limit per turn. The normal path uses two calls; code tools are local deterministic operations rather than extra model round trips.
+
+The September 2026 harness changes follow the user's newer instructions where these differ from the original source specification. Automatic tags select fixed responses directly. Off-target and empty replies use a separate limit of three consecutive unanswered turns, rather than consuming the clarification allowance. New volunteered knockout answers wait for criterion order; corrections to previously answered criteria retain their confirmation and interruption behavior. Implied answers request missing detail instead of confirming an unstated value. See `harness-fixes.md` for verification and scope.
