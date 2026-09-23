@@ -1,0 +1,25 @@
+{
+  "run_id": "747a06d2d9b7",
+  "agent_model": "gpt-5.6-sol",
+  "repetitions_per_case": 1,
+  "cases": 78,
+  "passed_cases": 54,
+  "case_pass_rate": 0.6923076923076923,
+  "assertions_passed": 287,
+  "assertions_total": 335,
+  "assertion_accuracy": 0.8567164179104477,
+  "code_assertions_passed": 280,
+  "code_assertions_total": 289,
+  "code_assertion_accuracy": 0.9688581314878892,
+  "failure_breakdown": {
+    "missing_verdict_function": 8,
+    "only_uncalibrated_grader_failures": 10,
+    "code_checked_behavior_mismatches": 6
+  },
+  "notes": [
+    "Original graded results remain unchanged.",
+    "Six of the ten grader-only cases have unavailable judgments; the other four have semantically questionable grader judgments.",
+    "A single pass does not establish repeatability or flakiness.",
+    "Recorded cost excludes usage lost when a grader returns invalid output; it is not a billing total."
+  ]
+}
