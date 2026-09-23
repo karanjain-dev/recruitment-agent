@@ -8,7 +8,7 @@ Scope: conversation + visible runtime harness only. No Judge, verdict, scores or
 
 ## API / UI contract
 
-GET `/api/bootstrap` -> `{product:'OnlyRound',job:{id,title,company,location,description,criteria:[{id,name,must_have,order}],facts:[]},model_ready:bool,model:str,auth_required:bool,authenticated:bool,harnesses:[{id,name,description}]}`.
+GET `/api/bootstrap` -> `{product:'AIrecruiter',job:{id,title,company,location,description,criteria:[{id,name,must_have,order}],facts:[]},model_ready:bool,model:str,auth_required:bool,authenticated:bool,harnesses:[{id,name,description}]}`.
 POST `/api/login` `{access_code}` -> cookie auth; POST `/api/logout` clears.
 All session endpoints require cookie auth when ACCESS_CODE configured. Browser owner cookie scopes sessions (cannot read other browser's sessions). Hosted ACCESS_CODE required.
 GET `/api/sessions` -> `{sessions:[{id,state,created_at,updated_at,current_criterion_id,close_reason}]}`.
