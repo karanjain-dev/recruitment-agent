@@ -1,0 +1,110 @@
+{
+  "id": "demo-customer-support-mumbai-v1",
+  "title": "Customer Support Associate",
+  "company": "OnlyRound Demo Company",
+  "location": "Mumbai, India",
+  "description": "Demonstration screening configuration for a customer support role. This is a sample interview, not an advertised vacancy or an offer of employment. Replace the approved job facts before using it for real applicants.",
+  "is_demo": true,
+  "duration_seconds": 900,
+  "criteria": [
+    {
+      "id": "experience", "name": "Customer support experience", "order": 1,
+      "must_have": true, "is_yes_no": false, "is_knockout": false,
+      "about": "Length and type of prior work, including an explicit statement of no prior experience.",
+      "complete_when": "The candidate gives both a duration and the type of work, or clearly says they have no work experience. A duration alone is partial. Do not invent responsibilities or infer experience from training.",
+      "examples": ["Two years in customer support.", "Six months in retail sales.", "I have no work experience yet."],
+      "question_text": "What work experience do you have, and for how long?",
+      "simple_question_text": "What kind of work have you done, and how long did you do it? You can also say if this would be your first job.",
+      "missing_parts": {"work_type": "What type of work did you do?", "duration": "How long did you do that work?"},
+      "followup_allowance": 1, "confirm_text": null, "confirm_volunteered_text": null, "confirm_implied_text": null
+    },
+    {
+      "id": "location", "name": "Current location", "order": 2,
+      "must_have": true, "is_yes_no": false, "is_knockout": false,
+      "about": "The candidate's current city or locality; a street address is not required.",
+      "complete_when": "A city or recognisable locality where the candidate currently lives is stated. A station or landmark without a locality is partial. Never request an exact residential address.",
+      "examples": ["I live in Andheri, Mumbai.", "I'm based in Pune.", "I stay in Malad."],
+      "question_text": "Which city or area do you currently live in?",
+      "simple_question_text": "Where are you based at the moment? Just the city or locality is enough.",
+      "missing_parts": {"city_or_area": "Which city or locality is that in?"},
+      "followup_allowance": 1, "confirm_text": null, "confirm_volunteered_text": null, "confirm_implied_text": null
+    },
+    {
+      "id": "night_shifts", "name": "Night shift availability", "order": 3,
+      "must_have": true, "is_yes_no": true, "is_knockout": true,
+      "about": "Whether the candidate is currently willing and available to work night shifts, and any conditions.",
+      "complete_when": "An explicit current yes or no about willingness and availability to work night shifts. Having worked nights in the past is not evidence of present willingness. A condition, such as transport being provided, must stay conditional with that condition recorded. Do not infer willingness from experience, location, or need for a job.",
+      "examples": ["Yes, I can work night shifts.", "No, I cannot work nights.", "Only if transport is provided."],
+      "question_text": "Are you available to work night shifts for this role?",
+      "simple_question_text": "Can you work during the night? You can say yes, no, or explain any conditions.",
+      "missing_parts": {"availability": "What is your current availability for night shifts?"},
+      "followup_allowance": 1,
+      "confirm_text": "To record this accurately, what is your final position on working night shifts?",
+      "confirm_volunteered_text": "You mentioned night shifts earlier. Please confirm your current availability, including any conditions.",
+      "confirm_implied_text": null
+    },
+    {
+      "id": "notice_period", "name": "Joining availability", "order": 4,
+      "must_have": true, "is_yes_no": false, "is_knockout": false,
+      "about": "When the candidate could start, as a notice period, date, or an explicit immediate start.",
+      "complete_when": "An explicit notice period, start date, or immediate joining availability. Being a fresher or unemployed does not itself mean immediately available: that is partial and implied. If availability depends on a condition, preserve the condition.",
+      "examples": ["I can join in 30 days.", "I can start immediately.", "I could start after my exams finish."],
+      "question_text": "If you proceed with this role, when would you be available to start?",
+      "simple_question_text": "How soon could you start this job?",
+      "missing_parts": {"start_time": "What start date or notice period should I record?"},
+      "followup_allowance": 1, "confirm_text": null, "confirm_volunteered_text": null,
+      "confirm_implied_text": "Does that mean you could start immediately, or would you need some time?"
+    },
+    {
+      "id": "crm", "name": "Support tools", "order": 5,
+      "must_have": false, "is_yes_no": false, "is_knockout": false,
+      "about": "Support or CRM tools used, or an explicit statement of no prior use.",
+      "complete_when": "Names at least one support or CRM tool used, or explicitly states no prior use. General computer experience without a tool or an explicit no is partial. Do not rate proficiency.",
+      "examples": ["I've used Zendesk.", "I used Freshdesk and Salesforce.", "I haven't used a CRM before."],
+      "question_text": "Which customer support or CRM tools have you used, if any?",
+      "simple_question_text": "Have you used tools such as Zendesk or Freshdesk? It's also fine if you haven't.",
+      "missing_parts": {"tool_name": "Which tool or software did you use?"},
+      "followup_allowance": 1, "confirm_text": null, "confirm_volunteered_text": null, "confirm_implied_text": null
+    }
+  ],
+  "facts": [
+    {"key": "demo_role", "topic": "Role and demonstration status", "synonyms": ["company", "job", "role", "vacancy"], "text": "This is a demonstration interview for a customer support role at OnlyRound Demo Company, not an active job vacancy.", "category": "job"},
+    {"key": "work_location", "topic": "Work location", "synonyms": ["office", "location", "remote", "hybrid"], "text": "The sample role is based in Mumbai. A real recruiter would confirm the work location and work arrangement for an actual vacancy.", "category": "job"},
+    {"key": "shift_timings", "topic": "Shift schedule", "synonyms": ["night", "shift", "hours", "timings"], "text": "The sample role includes night shifts. Exact shift timings must be confirmed by the recruiter.", "category": "job"},
+    {"key": "salary", "topic": "Compensation", "synonyms": ["pay", "salary", "package", "ctc"], "text": "No salary has been approved for this demonstration role. The recruiter will confirm compensation for an actual vacancy.", "category": "job"},
+    {"key": "interview_process", "topic": "Interview process and duration", "synonyms": ["process", "next steps", "duration", "interview"], "text": "This conversation records your answers and includes a short customer support roleplay. It lasts up to 15 minutes and does not make a hiring decision.", "category": "process"},
+    {"key": "data_recording", "topic": "Saved interview information", "synonyms": ["data", "privacy", "recording", "stored"], "text": "Your messages, answer summaries, and the system's processing log are saved for this interview. Avoid sharing passwords, financial account details, or an exact residential address.", "category": "process"}
+  ],
+  "fixed_lines": {
+    "greeting": "Hello, I'm OnlyRound, an automated screening assistant. This is a demonstration interview, not an active vacancy. I'll ask a few questions and run a short customer support roleplay. Your responses and the processing log will be saved. You can stop or ask to continue later at any time.",
+    "reask_prefix": "I still need an answer to this question.",
+    "unclear_prefix": "I couldn't record a clear answer yet.",
+    "identity_disclosure": "I'm an automated AI screening assistant, not a person. I record your responses; I don't make hiring decisions.",
+    "manipulation_reply": "I'll continue with the approved interview questions and record the information you share.",
+    "abuse_warning": "Please keep the conversation respectful so we can continue.",
+    "close_normal": "Thank you for your time. Your responses have been recorded. The recruiter can confirm any outstanding details and next steps.",
+    "close_stop": "I've stopped the interview as requested. Thank you for your time.",
+    "close_timeout": "We've reached the interview time limit. Your responses so far have been saved. Thank you for your time.",
+    "close_underage": "This sample role is for adults. I'll end this interview here. A recruiter can clarify the age requirements for any actual vacancy.",
+    "close_distress": "I'm sorry you're having a difficult time. We can stop here and continue another time. If you need support, consider reaching out to someone you trust or a local support service.",
+    "close_wrong_person": "It sounds like this interview isn't intended for you. I'll end it here. Thank you for letting me know.",
+    "close_abuse": "I'm ending this conversation because the language has continued to be abusive.",
+    "close_abandoned": "This interview was closed after a period of inactivity. Your responses so far have been saved.",
+    "callback": "I've paused the interview and noted your requested time. No automatic call has been scheduled; return here when you're ready to continue.",
+    "callback_resume": "Welcome back. Let's continue where we left off.",
+    "roleplay_intro": "Let's try a short customer support roleplay. I'll play the customer; please respond as the support agent.",
+    "roleplay_break": "This is the customer support roleplay. Please respond as if you were helping the customer.",
+    "roleplay_complete": "That ends the roleplay. Thank you.",
+    "roleplay_incomplete": "We'll end the roleplay here and continue.",
+    "candidate_qa_prompt": "Before we finish, is there anything you'd like to ask about the role or the interview process?",
+    "outcome_neutral": "I record your responses without making a hiring decision or providing assessment hints. The recruiter can confirm next steps.",
+    "reply_fallback": "Thanks.",
+    "unknown_deferred": "The recruiter will confirm the details you asked about.",
+    "clarification_fallback": "I couldn't process that response. Please try again in a short sentence."
+  },
+  "roleplay": {
+    "persona": "You are a customer contacting an online store because a delivery is late. You are concerned and impatient, but never abusive. You want a clear update and a practical next step. Stay in character as the customer. Use only the situation given and do not invent company policies, order numbers, personal data, refunds, or promises. Never coach the candidate or assess their answer.",
+    "initial_line": "My order was supposed to arrive yesterday, but it still hasn't arrived. Can you help me understand what happens next?",
+    "safe_line": "I'm still worried about the delay. What can you help me do next?"
+  }
+}
