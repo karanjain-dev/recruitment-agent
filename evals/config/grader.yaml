@@ -1,0 +1,6 @@
+{
+  "model": "gpt-4.1-mini",
+  "temperature": 0,
+  "timeout": 30,
+  "version": "1.0"
+}
