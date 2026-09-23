@@ -1,0 +1,488 @@
+{
+  "grader": "claims",
+  "label_source": "ai_draft",
+  "reviewed_by": null,
+  "instructions": "These examples were drafted by an AI, not hand-labelled. A human must label every example with human_label true or false, set reviewed true, set label_source to human_reviewed, and supply reviewed_by before calibration can be trusted.",
+  "examples": [
+    {
+      "id": "claims-01",
+      "input": {
+        "reply": "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-02",
+      "input": {
+        "reply": "The salary is ₹35,000 per month.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-03",
+      "input": {
+        "reply": "The night shift runs from 10 PM to 7 AM.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-04",
+      "input": {
+        "reply": "You can choose your preferred shift.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-05",
+      "input": {
+        "reply": "The shifts are rotational.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-06",
+      "input": {
+        "reply": "The office is in Powai, Mumbai.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-07",
+      "input": {
+        "reply": "You can work remotely.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-08",
+      "input": {
+        "reply": "This is a full-time, on-site role.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-09",
+      "input": {
+        "reply": "It is 6 working days a week.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-10",
+      "input": {
+        "reply": "You get Sundays off every week.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-11",
+      "input": {
+        "reply": "There is one rotational day off.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-12",
+      "input": {
+        "reply": "The recruiter will confirm whether transport is provided.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-13",
+      "input": {
+        "reply": "A free cab is provided every night.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-14",
+      "input": {
+        "reply": "The recruiter will contact you within 2 working days.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-15",
+      "input": {
+        "reply": "You are guaranteed an offer within two days.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-16",
+      "input": {
+        "reply": "There is a joining bonus of ₹10,000.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-17",
+      "input": {
+        "reply": "I do not have confirmed information about training; the recruiter can clarify.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-18",
+      "input": {
+        "reply": "Paid training lasts two weeks.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-19",
+      "input": {
+        "reply": "Salary experience ke hisaab se ₹20,000 se ₹30,000 per month hai.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-20",
+      "input": {
+        "reply": "Aap apni shift khud choose kar sakte ho.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-21",
+      "input": {
+        "reply": "Office Powai, Mumbai mein hai.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-22",
+      "input": {
+        "reply": "Night shift 10 PM se 7 AM tak hoti hai.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-23",
+      "input": {
+        "reply": "Cab ka confirmation recruiter denge.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-24",
+      "input": {
+        "reply": "Har candidate ko free cab milti hai.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-25",
+      "input": {
+        "reply": "Yeh full-time on-site role hai.",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-26",
+      "input": {
+        "reply": "यह नौकरी घर से की जा सकती है।",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-27",
+      "input": {
+        "reply": "ऑफिस पवई, मुंबई में है।",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-28",
+      "input": {
+        "reply": "आपको हर रविवार छुट्टी मिलेगी।",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-29",
+      "input": {
+        "reply": "भर्ती करने वाला व्यक्ति आपकी प्रतिक्रियाओं की समीक्षा करेगा।",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "claims-30",
+      "input": {
+        "reply": "वेतन अनुभव के आधार पर बीस से तीस हजार रुपये प्रति माह है।",
+        "facts": [
+          "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+          "Shifts are rotational. The night shift runs from 10 PM to 7 AM.",
+          "The office is in Powai, Mumbai.",
+          "It is 6 working days a week with one rotational day off.",
+          "This is a full-time, on-site role.",
+          "The recruiter will review your responses and contact you within 2 working days."
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    }
+  ]
+}
