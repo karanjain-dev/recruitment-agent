@@ -21,19 +21,23 @@ function migrateStoredRequests() {
   try {
     for (const sourceKey of Object.keys(localStorage)) {
       if (sourceKey.startsWith(STORAGE_PREFIX)) continue;
-      const match = sourceKey.match(/^[^.]+\.v1\.(activeSession|newSessionRequest|pending\.[0-9a-f-]+)$/i);
+      const match = sourceKey.match(/^([^.]+)\.v1\.(activeSession|newSessionRequest|pending\.[0-9a-f-]+)$/i);
       if (!match) continue;
       try {
         const raw = localStorage.getItem(sourceKey);
         const value = JSON.parse(raw);
-        const key = match[1];
+        const key = match[2];
         const sessionId = key.startsWith('pending.') ? key.slice(8) : null;
         const valid = sessionId
           ? uuidPattern.test(sessionId) && value?.session_id === sessionId && uuidPattern.test(value?.request_id) && typeof value?.message === 'string'
           : typeof value === 'string' && uuidPattern.test(value);
         if (!valid) continue;
+        if (sessionId) {
+          const formerName = new RegExp(match[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+          value.message = value.message.replace(formerName, 'AIrecruiter');
+        }
         const destinationKey = STORAGE_PREFIX + key;
-        if (localStorage.getItem(destinationKey) === null) localStorage.setItem(destinationKey, raw);
+        if (localStorage.getItem(destinationKey) === null) localStorage.setItem(destinationKey, sessionId ? JSON.stringify(value) : raw);
         localStorage.removeItem(sourceKey);
       } catch { /* Retain the source when browser storage cannot be updated. */ }
     }
