@@ -1,14 +1,14 @@
-# OnlyRound — Screening Conversation Studio
+# AIrecruiter — Screening Conversation Studio
 
 [Open the live studio](https://recruitment-agent-production-382c.up.railway.app) · [Railway project](https://railway.com/project/68c38af2-b26a-4383-9e87-ab234e4e0c16)
 
-OnlyRound runs a structured first-round text screening interview and shows how every turn was handled. A candidate chats with the bot; the studio displays the conversation, a live answer sheet, evidence history, and an expandable stack of model calls and code tools.
+AIrecruiter runs a structured first-round text screening interview and shows how every turn was handled. A candidate chats with the bot; the studio displays the conversation, a live answer sheet, evidence history, and an expandable stack of model calls and code tools.
 
 **The model understands and speaks. Code owns the questions, state, validation, and delivery.** This release records answers; it does not score candidates, judge suitability, recommend hiring decisions, or run an evaluation product. Voice, recruiter dashboards, and onboarding are outside this release.
 
 The included Mumbai customer-support role is clearly labelled **demonstration data**, not an active vacancy. Replace `config/job.json` with approved criteria, facts and wording before using a real role. Each interview stores its own config snapshot so later config edits cannot silently change an existing interview.
 
-![OnlyRound live harness](docs/preview-harness.png)
+![AIrecruiter live harness](docs/preview-harness.png)
 
 ## What you can do
 
