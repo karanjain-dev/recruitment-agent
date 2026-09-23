@@ -94,7 +94,7 @@ def by_criterion(snapshot):
 def test_bootstrap_auth_health_and_owner_isolation(studio):
     client, _, _ = studio
     bootstrap = client.get('/api/bootstrap').json()
-    assert bootstrap['product'] == 'OnlyRound'
+    assert bootstrap['product'] == 'AIrecruiter'
     assert bootstrap['authenticated'] is True
     assert bootstrap['auth_required'] is True
     assert bootstrap['harnesses'] and bootstrap['job']['criteria']
@@ -113,6 +113,70 @@ def test_bootstrap_auth_health_and_owner_isolation(studio):
         assert other.post(f"/api/sessions/{created['id']}/turns/{created['messages'][0]['turn_id']}/ack").status_code == 404
     assert client.post('/api/logout').status_code == 200
     assert client.get('/api/sessions').status_code == 401
+
+
+def use_legacy_cookies(client, auth=None, owner=None, keep_current=False):
+    auth = auth if auth is not None else client.cookies.get('AIrecruiter_auth')
+    owner = owner if owner is not None else client.cookies.get('AIrecruiter_owner')
+    if not keep_current: client.cookies.clear()
+    client.cookies.set('legacy_auth', auth, domain='testserver.local', path='/')
+    client.cookies.set('legacy_owner', owner, domain='testserver.local', path='/')
+    return auth, owner
+
+
+def test_signed_legacy_cookies_recover_the_same_session_on_first_request(studio):
+    client, _, _ = studio
+    created = create(client)
+    auth, owner = use_legacy_cookies(client)
+    response = client.get(f"/api/sessions/{created['id']}")
+    assert response.status_code == 200
+    assert response.json()['id'] == created['id']
+    assert client.cookies.get('AIrecruiter_auth') == auth
+    assert client.cookies.get('AIrecruiter_owner') == owner
+    assert client.cookies.get('legacy_auth') is None
+    assert client.cookies.get('legacy_owner') is None
+    assert client.get('/api/sessions').json()['sessions'][0]['id'] == created['id']
+
+
+@pytest.mark.parametrize('keep_current', [False, True])
+def test_logout_removes_legacy_auth_without_middleware_restoring_it(studio, keep_current):
+    client, _, _ = studio
+    create(client)
+    use_legacy_cookies(client, keep_current=keep_current)
+    response = client.post('/api/logout')
+    assert response.status_code == 200
+    assert client.cookies.get('AIrecruiter_auth') is None
+    assert client.cookies.get('legacy_auth') is None
+    assert client.get('/api/sessions').status_code == 401
+    assert client.get('/api/bootstrap').json()['authenticated'] is False
+
+
+@pytest.mark.parametrize('kind,value', [
+    ('auth', 'unsigned'), ('auth', 'bad-format'), ('auth', 'expired'),
+    ('auth', 'tampered'), ('owner', 'bad-format'), ('owner', 'tampered'),
+])
+def test_malformed_legacy_cookies_do_not_grant_session_access(studio, kind, value):
+    client, _, _ = studio
+    created = create(client)
+    original = client.cookies.get(f'AIrecruiter_{kind}')
+    invalid = {'unsigned': '9999999999', 'bad-format': main.sign('wrong-format'),
+               'expired': main.sign('1'), 'tampered': original[:-1] + ('1' if original[-1] != '1' else '2')}[value]
+    use_legacy_cookies(client, **{kind: invalid})
+    response = client.get(f"/api/sessions/{created['id']}")
+    assert response.status_code == 401
+    assert client.cookies.get(f'AIrecruiter_{kind}') != invalid
+    assert client.cookies.get(f'legacy_{kind}') == invalid
+
+
+def test_login_sets_fresh_auth_without_migration_overwriting_it(studio):
+    client, _, _ = studio
+    old_auth = main.sign(str(int(main.time.time()) + 120))
+    use_legacy_cookies(client, auth=old_auth)
+    response = client.post('/api/login', json={'access_code': 'test-access-code'})
+    assert response.status_code == 200
+    assert client.cookies.get('AIrecruiter_auth') != old_auth
+    assert client.cookies.get('legacy_auth') is None
+    assert int(main.unsigned(client.cookies.get('AIrecruiter_auth'))) > main.time.time() + 86000
 
 
 def test_greeting_is_idempotent_and_commits_only_after_ack(studio):
