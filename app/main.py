@@ -54,13 +54,23 @@ def unsigned(value):
     if not value or '.' not in value: return None
     raw,signature = value.rsplit('.',1)
     return raw if hmac.compare_digest(sign(raw).rsplit('.',1)[1].encode(), signature.encode()) else None
+def verified_cookies(request, kind):
+    canonical = f'AIrecruiter_{kind}'
+    names = [canonical] + [name for name in request.cookies if name != canonical and name.endswith('_' + kind)]
+    pattern = r'[0-9]{1,12}' if kind == 'auth' else r'[0-9a-f]{48}'
+    for name in names:
+        raw = unsigned(request.cookies.get(name))
+        if raw and re.fullmatch(pattern, raw): yield name, raw
+def current_cookie(request, kind):
+    for name, raw in verified_cookies(request, kind):
+        if kind != 'auth' or int(raw) > time.time(): return name, raw
+    return None, None
 def authenticated(request):
     if not ACCESS_CODE: return True
-    raw = unsigned(request.cookies.get('onlyround_auth'))
-    return bool(raw and raw.isdigit() and int(raw) > time.time())
+    return current_cookie(request, 'auth')[1] is not None
 def owner(request):
     if not authenticated(request): raise HTTPException(401,'Enter the studio access code to continue.')
-    value = unsigned(request.cookies.get('onlyround_owner'))
+    value = current_cookie(request, 'owner')[1]
     if not value: raise HTTPException(401,'Refresh the page to initialise your session.')
     return value
 def cookie(response, name, value, age=2592000):
@@ -127,13 +137,14 @@ async def lifespan(app):
     if PRODUCTION and (not ACCESS_CODE or not os.getenv('COOKIE_SECRET') or not os.getenv('DATABASE_URL','').startswith(('postgres','postgresql'))):
         raise RuntimeError('Production requires PostgreSQL, ACCESS_CODE and COOKIE_SECRET.')
     store.init()
+    store.migrate_product_name()
     worker=asyncio.create_task(abandon_worker())
     yield
     worker.cancel()
     try: await worker
     except asyncio.CancelledError: pass
 
-app=FastAPI(title='OnlyRound Conversation Studio',version='1.0.0',lifespan=lifespan,docs_url=None,redoc_url=None)
+app=FastAPI(title='AIrecruiter Conversation Studio',version='1.0.0',lifespan=lifespan,docs_url=None,redoc_url=None)
 
 @app.middleware('http')
 async def security(request,call_next):
@@ -154,7 +165,18 @@ async def security(request,call_next):
     response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
     response.headers['Cache-Control']='no-store' if request.url.path.startswith('/api/') else 'no-cache'
     if PRODUCTION: response.headers['Strict-Transport-Security']='max-age=31536000'
-    if not unsigned(request.cookies.get('onlyround_owner')): cookie(response,'onlyround_owner',secrets.token_hex(24))
+    for kind in ('owner', 'auth'):
+        # These endpoints own the auth response; migration must never undo logout.
+        if kind == 'auth' and request.url.path in ('/api/login', '/api/logout'): continue
+        canonical = f'AIrecruiter_{kind}'
+        source, raw = current_cookie(request, kind)
+        if raw:
+            if source != canonical:
+                age = max(1, int(raw) - int(time.time())) if kind == 'auth' else 2592000
+                cookie(response, canonical, raw, age)
+            for name, _ in verified_cookies(request, kind):
+                if name != canonical: response.delete_cookie(name, path='/')
+        elif kind == 'owner': cookie(response, canonical, secrets.token_hex(24))
     return response
 
 @app.get('/health')
@@ -166,7 +188,7 @@ def health():
 
 @app.get('/api/bootstrap')
 def bootstrap(request:Request):
-    return {'product':'OnlyRound','job':public_job(JOB),'model_ready':model_ready(),
+    return {'product':'AIrecruiter','job':public_job(JOB),'model_ready':model_ready(),
             'model':os.getenv('OPENAI_MODEL','gpt-4.1-mini'),'auth_required':bool(ACCESS_CODE),
             'authenticated':authenticated(request),'harnesses':HARNESSES}
 
@@ -181,13 +203,17 @@ def login(body:LoginBody,request:Request,response:Response):
     if ACCESS_CODE and not hmac.compare_digest(body.access_code.encode(),ACCESS_CODE.encode()):
         login_attempts[ip]=attempts+[now]
         raise HTTPException(401,'That access code is not correct.')
-    cookie(response,'onlyround_auth',str(int(now+86400)),86400)
+    cookie(response,'AIrecruiter_auth',str(int(now+86400)),86400)
+    for name, _ in verified_cookies(request, 'auth'):
+        if name != 'AIrecruiter_auth': response.delete_cookie(name, path='/')
     login_attempts.pop(ip,None)
     return {'ok':True}
 
 @app.post('/api/logout')
-def logout(response:Response):
-    response.delete_cookie('onlyround_auth',path='/')
+def logout(request:Request,response:Response):
+    response.delete_cookie('AIrecruiter_auth',path='/')
+    for name, _ in verified_cookies(request, 'auth'):
+        if name != 'AIrecruiter_auth': response.delete_cookie(name, path='/')
     return {'ok':True}
 
 @app.get('/api/sessions')
@@ -244,7 +270,7 @@ def get_session(session_id:str,request:Request):
 @app.get('/api/sessions/{session_id}/export')
 def export_session(session_id:str,request:Request):
     with store.read() as db: data=snapshot(db,owned(db,session_id,owner(request)))
-    return JSONResponse(data,headers={'Content-Disposition':f'attachment; filename="onlyround-{session_id}.json"'})
+    return JSONResponse(data,headers={'Content-Disposition':f'attachment; filename="AIrecruiter-{session_id}.json"'})
 
 def persist_result(db,sid,tid,mid,result):
     save_sheet(db,sid,result.get('pre_delivery_sheet',result['sheet']))

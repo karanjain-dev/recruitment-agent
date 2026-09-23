@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 import time
 import uuid
 from contextlib import contextmanager
@@ -125,7 +126,7 @@ class Trace(Base):
 
 class Store:
     def __init__(self, url=None):
-        url = url or os.getenv('DATABASE_URL','sqlite:///./data/onlyround.db')
+        url = url or os.getenv('DATABASE_URL','sqlite:///./data/AIrecruiter.db')
         if url.startswith('postgres://'): url = 'postgresql+psycopg://' + url[len('postgres://'):]
         elif url.startswith('postgresql://'): url = 'postgresql+psycopg://' + url[len('postgresql://'):]
         self.sqlite = url.startswith('sqlite')
@@ -148,6 +149,70 @@ class Store:
                 if 'attempt_token' not in columns:
                     db.execute(text('ALTER TABLE turns ADD COLUMN attempt_token VARCHAR(36)'))
                 db.add(SchemaVersion(version=2))
+
+    def migrate_product_name(self, current_name='AIrecruiter'):
+        """Update saved demo branding without recreating sessions or their records.
+
+        Former names come only from the structured job configuration saved with
+        an interview. Candidate messages cannot introduce replacement rules.
+        JSON keys, record identities and relationships remain untouched.
+        """
+        with self.tx() as db:
+            if self.engine.dialect.name == 'postgresql':
+                db.execute(text('SELECT pg_advisory_xact_lock(7346582303)'))
+            if db.get(SchemaVersion, 3):
+                return 0
+            interviews = db.query(Interview).all()
+            former_names = set()
+            for interview in interviews:
+                job = interview.job
+                greeting = job.get('fixed_lines', {}).get('greeting', '')
+                match = re.match(r"^Hello, I['’]m (.+?), an automated screening assistant\.", greeting)
+                if match:
+                    former_names.add(match.group(1))
+                company = job.get('company', '')
+                if company.endswith(' Demo Company'):
+                    former_names.add(company[:-len(' Demo Company')])
+            former_names.discard('')
+            former_names.discard(current_name)
+            changed_records = 0
+            if former_names:
+                pattern = re.compile('|'.join(re.escape(name) for name in
+                                             sorted(former_names, key=len, reverse=True)), re.IGNORECASE)
+
+                def renamed(value):
+                    if isinstance(value, str):
+                        return pattern.sub(lambda _: current_name, value)
+                    if isinstance(value, list):
+                        return [renamed(item) for item in value]
+                    if isinstance(value, dict):
+                        return {key: renamed(item) for key, item in value.items()}
+                    return value
+
+                fields = (
+                    (Interview, ('job', 'state')),
+                    (Turn, ('candidate_text', 'reply', 'result', 'error')),
+                    (Message, ('content',)),
+                    (Answer, ('payload',)),
+                    (History, ('payload',)),
+                    (Hint, ('payload',)),
+                    (CandidateQuestion, ('question_text', 'payload')),
+                    (Flag, ('payload',)),
+                    (Trace, ('name', 'input', 'output', 'error')),
+                )
+                for model, columns in fields:
+                    records = interviews if model is Interview else db.query(model).all()
+                    for record in records:
+                        changed = False
+                        for column in columns:
+                            before = getattr(record, column)
+                            after = renamed(before)
+                            if after != before:
+                                setattr(record, column, after)
+                                changed = True
+                        changed_records += int(changed)
+            db.add(SchemaVersion(version=3))
+            return changed_records
 
     @contextmanager
     def tx(self):
