@@ -6,6 +6,8 @@ OnlyRound runs a structured first-round text screening interview and shows how e
 
 The included Mumbai customer-support role is clearly labelled **demonstration data**, not an active vacancy. Replace `config/job.json` with approved criteria, facts and wording before using a real role. Each interview stores its own config snapshot so later config edits cannot silently change an existing interview.
 
+![OnlyRound live harness](docs/preview-harness.png)
+
 ## What you can do
 
 - Start and resume interviews in one browser, including callback pauses.
@@ -71,7 +73,7 @@ Requires Python 3.9+ (the production image uses Python 3.12).
 ```sh
 cp .env.example .env
 # Set OPENAI_API_KEY in .env. Keep it private.
-./start.sh
+sh start.sh
 ```
 
 Open `http://localhost:8000`. Set `PORT` to change the port. Without a key, the interface and records are available, but model-backed messages are disabled. `OPENAI_MODEL` defaults to `gpt-4.1-mini` and must support strict Chat Completions structured outputs. API usage is billed to the configured OpenAI account.
