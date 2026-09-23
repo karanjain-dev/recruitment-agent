@@ -1,12 +1,14 @@
 # AIrecruiter — Screening Conversation Studio
 
-[Open the live studio](https://recruitment-agent-production-382c.up.railway.app) · [Railway project](https://railway.com/project/68c38af2-b26a-4383-9e87-ab234e4e0c16)
+[Open the live studio](https://recruitment-agent-production-382c.up.railway.app) · [Open evals](https://recruitment-agent-production-382c.up.railway.app/evals/) · [Railway project](https://railway.com/project/68c38af2-b26a-4383-9e87-ab234e4e0c16)
 
 AIrecruiter runs a structured first-round text screening interview and shows how every turn was handled. A candidate chats with the bot; the studio displays the conversation, a live answer sheet, evidence history, and an expandable stack of model calls and code tools.
 
-**The model understands and speaks. Code owns the questions, state, validation, and delivery.** This release records answers; it does not score candidates, judge suitability, recommend hiring decisions, or run an evaluation product. Voice, recruiter dashboards, and onboarding are outside this release.
+**The model understands and speaks. Code owns the questions, state, validation, and delivery.** This release records answers; it does not score candidates, judge suitability, recommend hiring decisions, or run evaluations inside the interview studio. The evaluation workbench is available locally and at `/evals/` on the hosted app. Voice, recruiter dashboards, and onboarding are outside this release.
 
 The included Mumbai customer-support role is clearly labelled **demonstration data**, not an active vacancy. Replace `config/job.json` with approved criteria, facts and wording before using a real role. Each interview stores its own config snapshot so later config edits cannot silently change an existing interview.
+
+The evaluation dashboard supports model and prompt comparisons, full case traces, dataset imports and a hosted PostgreSQL store. See the [first live baseline](docs/eval-baseline.md) and [Railway eval deployment](docs/eval-hosting.md). Final hiring verdicts are excluded from accuracy. The first live run exposed four confirmed harness failures after correct model understanding; the saved-form regression checks now pass for all four.
 
 ![AIrecruiter live harness](docs/preview-harness.png)
 
@@ -68,6 +70,15 @@ Sending the same text intentionally twice with different request IDs creates two
 
 Raw candidate text is durable before the model runs. Accepted answer changes and their history are saved in one transaction. The proposed next question and follow-up changes remain staged in the turn until the browser acknowledges delivery. If a response is interrupted, reloading recovers the staged reply; acknowledging it again is safe. A failed turn retries with its original key and reuses any already validated result. Active attempts are fenced so an expired attempt cannot overwrite a retry.
 
+## Evaluation workbench
+
+Open the separate local dashboard with `sh start-evals.sh`, then visit
+`http://127.0.0.1:8010`. It includes the supplied 78-case dataset, model and prompt
+experiments, repeated isolated runs, failure traces, precision/recall/F1, dataset
+imports, calibration, and baseline comparisons. It uses its own SQLite results
+store and never modifies interview data. See [the evaluation guide](evals/README.md)
+for commands, extension points, calibration, and current agent limitations.
+
 ## Run locally
 
 Requires Python 3.9+ (the production image uses Python 3.12).
@@ -122,7 +133,9 @@ docs/decisions.md   Scope choices and practical limits
 
 ## Practical limits
 
-The validator proves structural validity and quote support, not semantic correctness. A model can still misunderstand a genuine quote; the answer sheet and trace make that visible. Serious flags are best effort; underage classification is narrowly corroborated against explicit age wording. A confirmed knockout refusal only changes interview flow; this release never produces a hiring verdict. Callback requests are stored as a pause, not scheduled telephone calls.
+The validator proves structural validity and quote support, not semantic correctness. A model can still misunderstand a genuine quote; the answer sheet and trace make that visible. Understand classifies automatic tags in the candidate's language; the harness routes every supported tag directly to fixed wording and its defined action without reclassifying the message. A confirmed knockout refusal only changes interview flow; this release never produces a hiring verdict. Callback requests are stored as a pause, not scheduled telephone calls.
+
+Follow-up allowances count requests for missing detail about the current answer. Repeating an unanswered question does not spend that allowance; three consecutive turns without an accepted current answer mark it unresolved and advance. Volunteered knockout answers wait for their criterion's place in the question order before confirmation. Implied joining availability prompts a timeframe question, and response templates are filled or replaced with a fixed clarification before delivery. See [harness changes and verification](docs/harness-fixes.md).
 
 Prompts and responses may contain candidate information. Access is restricted to the authorized browser session, and credentials are excluded from logs and Git. There is no public session listing or public transcript endpoint. Configure actual job facts and consent/retention wording appropriate to your intended deployment.
 
