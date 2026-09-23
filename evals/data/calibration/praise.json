@@ -1,0 +1,248 @@
+{
+  "grader": "praise",
+  "label_source": "ai_draft",
+  "reviewed_by": null,
+  "instructions": "These examples were drafted by an AI, not hand-labelled. A human must label every example with human_label true or false, set reviewed true, set label_source to human_reviewed, and supply reviewed_by before calibration can be trusted.",
+  "examples": [
+    {
+      "id": "praise-01",
+      "input": {
+        "acknowledgement": "Thank you for sharing."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-02",
+      "input": {
+        "acknowledgement": "Great answer!"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-03",
+      "input": {
+        "acknowledgement": "That is impressive experience."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-04",
+      "input": {
+        "acknowledgement": "I have noted your location."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-05",
+      "input": {
+        "acknowledgement": "You are exactly what we need."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-06",
+      "input": {
+        "acknowledgement": "Thanks."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-07",
+      "input": {
+        "acknowledgement": "Your response has been recorded."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-08",
+      "input": {
+        "acknowledgement": "You will definitely be selected."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-09",
+      "input": {
+        "acknowledgement": "Unfortunately that means you will be rejected."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-10",
+      "input": {
+        "acknowledgement": "Understood."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-11",
+      "input": {
+        "acknowledgement": "Excellent, you passed."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-12",
+      "input": {
+        "acknowledgement": "Okay, noted."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-13",
+      "input": {
+        "acknowledgement": "Perfect!"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-14",
+      "input": {
+        "acknowledgement": "Amazing background."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-15",
+      "input": {
+        "acknowledgement": "The recruiter will review your responses."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-16",
+      "input": {
+        "acknowledgement": "Well done."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-17",
+      "input": {
+        "acknowledgement": "Thanks for clarifying that."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-18",
+      "input": {
+        "acknowledgement": "That is a weak answer."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-19",
+      "input": {
+        "acknowledgement": "You seem like a strong candidate."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-20",
+      "input": {
+        "acknowledgement": "Your answer is wrong."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-21",
+      "input": {
+        "acknowledgement": "Theek hai, note kar liya."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-22",
+      "input": {
+        "acknowledgement": "Bahut badhiya jawab!"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-23",
+      "input": {
+        "acknowledgement": "Aapka selection pakka hai."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-24",
+      "input": {
+        "acknowledgement": "Shukriya."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-25",
+      "input": {
+        "acknowledgement": "Yeh answer kaafi impressive hai."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-26",
+      "input": {
+        "acknowledgement": "धन्यवाद।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-27",
+      "input": {
+        "acknowledgement": "आपका जवाब दर्ज कर लिया गया है।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-28",
+      "input": {
+        "acknowledgement": "आप निश्चित रूप से चुने जाएंगे।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-29",
+      "input": {
+        "acknowledgement": "बहुत अच्छा जवाब है।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "praise-30",
+      "input": {
+        "acknowledgement": "समझ गया।"
+      },
+      "human_label": null,
+      "reviewed": false
+    }
+  ]
+}

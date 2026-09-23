@@ -1,0 +1,10 @@
+{
+  "repository": "karanjain-dev/recruitment-agent",
+  "railway_project_id": "68c38af2-b26a-4383-9e87-ab234e4e0c16",
+  "railway_environment_id": "3c35266e-aec8-437c-83ba-0722da8a488b",
+  "web_service_id": "87fc0ef9-6ab3-4e68-91e8-1269cf8b5b1b",
+  "postgres_service_id": "e6511fee-2300-4b1f-ba91-26d607530f2c",
+  "postgres_volume_id": "6435f3f6-c833-465a-9919-d9c28a70b7e9",
+  "url": "https://recruitment-agent-production-382c.up.railway.app/evals/",
+  "baseline_run_id": "747a06d2d9b7"
+}

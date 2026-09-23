@@ -7,3 +7,7 @@ __pycache__
 .pytest_cache
 .deployment-private.json
 tests
+evals/store/*.sqlite3*
+evals/data/imports
+evals/data/calibration/*.report.json
+.eval-deployment-private.json

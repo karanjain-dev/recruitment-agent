@@ -1,0 +1,90 @@
+{
+  "source_run": "747a06d2d9b7",
+  "description": "Recorded understanding forms, replayed without provider calls to check harness regressions. Not a live model evaluation.",
+  "cases": [
+    {
+      "case_id": "FLAG-01-02",
+      "form": {
+        "answers": [],
+        "candidate_questions": [],
+        "flag": "underage",
+        "stop": false,
+        "callback": {
+          "requested": false,
+          "time": null
+        }
+      },
+      "previous_action": "reask:experience",
+      "previous_delivered": "Sorry, I didn't quite get that.\n\nHow much work experience do you have, and what type of work have you done?"
+    },
+    {
+      "case_id": "READ-04-01",
+      "form": {
+        "answers": [],
+        "candidate_questions": [],
+        "flag": "none",
+        "stop": false,
+        "callback": {
+          "requested": false,
+          "time": null
+        }
+      },
+      "previous_action": "reask:night_shifts",
+      "previous_delivered": "Sorry, I didn't quite get that.\n\nThis role includes night shifts. Are you willing to work night shifts?"
+    },
+    {
+      "case_id": "READ-04-02",
+      "form": {
+        "answers": [
+          {
+            "criterion": "night_shifts",
+            "event": "volunteered",
+            "status": "complete",
+            "value": "Willing to work night shifts",
+            "quote": "Yes, I can do night shifts, no problem",
+            "yes_no": "yes",
+            "implied": false,
+            "condition": null,
+            "missing_part": null
+          }
+        ],
+        "candidate_questions": [],
+        "flag": "none",
+        "stop": false,
+        "callback": {
+          "requested": false,
+          "time": null
+        }
+      },
+      "previous_action": "confirm:night_shifts",
+      "previous_delivered": "Thanks, noted.\n\nJust to confirm, are you willing to work night shifts in this role?"
+    },
+    {
+      "case_id": "READ-05-02",
+      "form": {
+        "answers": [
+          {
+            "criterion": "notice_period",
+            "event": "answer",
+            "status": "partial",
+            "value": "Left their job last month but did not provide a concrete joining timeframe.",
+            "quote": "I left my job last month",
+            "yes_no": null,
+            "implied": true,
+            "condition": null,
+            "missing_part": "timeframe"
+          }
+        ],
+        "candidate_questions": [],
+        "flag": "none",
+        "stop": false,
+        "callback": {
+          "requested": false,
+          "time": null
+        }
+      },
+      "previous_action": "confirm:notice_period",
+      "previous_delivered": "Thanks, noted.\n\nSo you can join {value}, is that right?"
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "grader": "quote",
+  "label_source": "ai_draft",
+  "reviewed_by": null,
+  "instructions": "These examples were drafted by an AI, not hand-labelled. A human must label every example with human_label true or false, set reviewed true, set label_source to human_reviewed, and supply reviewed_by before calibration can be trusted.",
+  "examples": [
+    {
+      "id": "quote-01",
+      "input": {
+        "criterion": "location",
+        "value": "Malad",
+        "quote": "I live in Malad."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-02",
+      "input": {
+        "criterion": "location",
+        "value": "Goregaon",
+        "quote": "I live near Malad station."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-03",
+      "input": {
+        "criterion": "location",
+        "value": "Andheri East",
+        "quote": "Andheri East, near the station."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-04",
+      "input": {
+        "criterion": "location",
+        "value": "Powai",
+        "quote": "I live in Mumbai."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-05",
+      "input": {
+        "criterion": "experience",
+        "value": "2 years customer support",
+        "quote": "I worked in customer support for 2 years."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-06",
+      "input": {
+        "criterion": "experience",
+        "value": "2 years customer support",
+        "quote": "I have 2 years of experience."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-07",
+      "input": {
+        "criterion": "experience",
+        "value": "No work experience",
+        "quote": "I am a fresher and have never worked."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-08",
+      "input": {
+        "criterion": "experience",
+        "value": "5 years call centre",
+        "quote": "I worked at a call centre for five years."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-09",
+      "input": {
+        "criterion": "experience",
+        "value": "6 months sales",
+        "quote": "I did sales for 6 months."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-10",
+      "input": {
+        "criterion": "experience",
+        "value": "6 years sales",
+        "quote": "I did sales for 6 months."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-11",
+      "input": {
+        "criterion": "notice_period",
+        "value": "30 days",
+        "quote": "My notice period is 30 days."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-12",
+      "input": {
+        "criterion": "notice_period",
+        "value": "Immediately",
+        "quote": "I can start right away."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-13",
+      "input": {
+        "criterion": "notice_period",
+        "value": "Immediately",
+        "quote": "I am a fresher."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-14",
+      "input": {
+        "criterion": "notice_period",
+        "value": "60 days",
+        "quote": "Actually my notice is 60 days."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-15",
+      "input": {
+        "criterion": "notice_period",
+        "value": "15 days",
+        "quote": "I can join soon."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-16",
+      "input": {
+        "criterion": "night_shifts",
+        "value": "yes",
+        "quote": "Yes, I can work night shifts in this role."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-17",
+      "input": {
+        "criterion": "night_shifts",
+        "value": "yes",
+        "quote": "I did night shifts at my previous job."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-18",
+      "input": {
+        "criterion": "night_shifts",
+        "value": "no",
+        "quote": "I cannot do nights."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-19",
+      "input": {
+        "criterion": "night_shifts",
+        "value": "yes, if cab provided",
+        "quote": "Only if there is a cab."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-20",
+      "input": {
+        "criterion": "night_shifts",
+        "value": "unconditional yes",
+        "quote": "Only if there is a cab."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-21",
+      "input": {
+        "criterion": "crm",
+        "value": "Freshdesk",
+        "quote": "I have used Freshdesk."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-22",
+      "input": {
+        "criterion": "crm",
+        "value": "Zendesk",
+        "quote": "I used CRM tools."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-23",
+      "input": {
+        "criterion": "crm",
+        "value": "None",
+        "quote": "I have never used CRM software."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-24",
+      "input": {
+        "criterion": "location",
+        "value": "Thane",
+        "quote": "Main Thane mein rehta hoon."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-25",
+      "input": {
+        "criterion": "notice_period",
+        "value": "30 days",
+        "quote": "Mera notice period tees din ka hai."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-26",
+      "input": {
+        "criterion": "night_shifts",
+        "value": "no",
+        "quote": "Raat ki shift nahi kar sakta."
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-27",
+      "input": {
+        "criterion": "location",
+        "value": "Powai",
+        "quote": "मैं पवई में रहता हूँ।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-28",
+      "input": {
+        "criterion": "notice_period",
+        "value": "Immediately",
+        "quote": "मैं तुरंत शुरू कर सकता हूँ।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-29",
+      "input": {
+        "criterion": "experience",
+        "value": "3 years",
+        "quote": "मुझे काम का अनुभव है।"
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "quote-30",
+      "input": {
+        "criterion": "crm",
+        "value": "Zendesk",
+        "quote": ""
+      },
+      "human_label": null,
+      "reviewed": false
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "747a06d2d9b7",
+  "model": "gpt-5.6-sol",
+  "grader": "gpt-4.1-mini",
+  "repeats": 1,
+  "headline": {
+    "total_cases": 71,
+    "completed_cases": 71,
+    "passed_cases": 55,
+    "disputed_cases": 0,
+    "failed_cases": 16,
+    "pending_cases": 0,
+    "flaky_cases": 0,
+    "severe_failures": 11,
+    "severe_pending": 0,
+    "case_pass_rate": 0.7746478873239436,
+    "run_count": 71,
+    "passed_runs": 55,
+    "failed_runs": 16,
+    "error_runs": 0,
+    "run_pass_rate": 0.7746478873239436,
+    "assertion_count": 316,
+    "passed_assertions": 287,
+    "assertion_accuracy": 0.9082278481012658,
+    "code_assertion_count": 289,
+    "code_assertions_passed": 280,
+    "code_assertion_accuracy": 0.9688581314878892,
+    "form_assertion_count": 140,
+    "form_assertions_passed": 138,
+    "form_assertion_accuracy": 0.9857142857142858,
+    "cost_usd": 1.0653836000000003,
+    "known_cost_usd": 1.0653836000000003,
+    "cost_coverage": 1.0,
+    "latency_p50_ms": 6935.27,
+    "latency_p95_ms": 35807.28,
+    "input_tokens": 205925,
+    "output_tokens": 14420
+  },
+  "accuracy_scope": {
+    "version": "conversation-v1",
+    "name": "Conversation accuracy",
+    "excluded_case_ids": [
+      "VERDICT-01-01",
+      "VERDICT-01-02",
+      "VERDICT-01-03",
+      "VERDICT-01-04",
+      "VERDICT-01-05",
+      "VERDICT-01-06",
+      "VERDICT-01-07"
+    ],
+    "excluded_cases": 7,
+    "excluded_assertions": 19,
+    "source_case_count": 78,
+    "reason": "Final hiring verdicts are outside conversation accuracy."
+  },
+  "harness_replay": {
+    "passed": 4,
+    "total": 4,
+    "live_model_run": false
+  },
+  "finding": "The four confirmed behavior failures were in harness code after correct model understanding. Two additional cases need expectation review, and ten failed only through uncalibrated or inconsistent model graders.",
+  "note": "These accuracies describe the original live run before harness fixes, recalculated without final-verdict checks. Replaying the four saved forms verifies harness fixes; it is not a new live accuracy measurement."
+}

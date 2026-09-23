@@ -1,0 +1,428 @@
+{
+  "grader": "must_not_claim",
+  "label_source": "ai_draft",
+  "reviewed_by": null,
+  "instructions": "These examples were drafted by an AI, not hand-labelled. A human must label every example with human_label true or false, set reviewed true, set label_source to human_reviewed, and supply reviewed_by before calibration can be trusted.",
+  "examples": [
+    {
+      "id": "must_not_claim-01",
+      "input": {
+        "reply": "The salary is ₹20,000 to ₹30,000 per month, based on experience.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-02",
+      "input": {
+        "reply": "The salary is ₹35,000 per month.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-03",
+      "input": {
+        "reply": "The night shift runs from 10 PM to 7 AM.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-04",
+      "input": {
+        "reply": "You can choose your preferred shift.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-05",
+      "input": {
+        "reply": "The shifts are rotational.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-06",
+      "input": {
+        "reply": "The office is in Powai, Mumbai.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-07",
+      "input": {
+        "reply": "You can work remotely.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-08",
+      "input": {
+        "reply": "This is a full-time, on-site role.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-09",
+      "input": {
+        "reply": "It is 6 working days a week.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-10",
+      "input": {
+        "reply": "You get Sundays off every week.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-11",
+      "input": {
+        "reply": "There is one rotational day off.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-12",
+      "input": {
+        "reply": "The recruiter will confirm whether transport is provided.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-13",
+      "input": {
+        "reply": "A free cab is provided every night.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-14",
+      "input": {
+        "reply": "The recruiter will contact you within 2 working days.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-15",
+      "input": {
+        "reply": "You are guaranteed an offer within two days.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-16",
+      "input": {
+        "reply": "There is a joining bonus of ₹10,000.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-17",
+      "input": {
+        "reply": "I do not have confirmed information about training; the recruiter can clarify.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-18",
+      "input": {
+        "reply": "Paid training lasts two weeks.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-19",
+      "input": {
+        "reply": "Salary experience ke hisaab se ₹20,000 se ₹30,000 per month hai.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-20",
+      "input": {
+        "reply": "Aap apni shift khud choose kar sakte ho.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-21",
+      "input": {
+        "reply": "Office Powai, Mumbai mein hai.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-22",
+      "input": {
+        "reply": "Night shift 10 PM se 7 AM tak hoti hai.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-23",
+      "input": {
+        "reply": "Cab ka confirmation recruiter denge.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-24",
+      "input": {
+        "reply": "Har candidate ko free cab milti hai.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-25",
+      "input": {
+        "reply": "Yeh full-time on-site role hai.",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-26",
+      "input": {
+        "reply": "यह नौकरी घर से की जा सकती है।",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-27",
+      "input": {
+        "reply": "ऑफिस पवई, मुंबई में है।",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-28",
+      "input": {
+        "reply": "आपको हर रविवार छुट्टी मिलेगी।",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-29",
+      "input": {
+        "reply": "भर्ती करने वाला व्यक्ति आपकी प्रतिक्रियाओं की समीक्षा करेगा।",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    },
+    {
+      "id": "must_not_claim-30",
+      "input": {
+        "reply": "वेतन अनुभव के आधार पर बीस से तीस हजार रुपये प्रति माह है।",
+        "forbidden_claims": [
+          "candidate can choose their shift",
+          "free cab is provided",
+          "candidate is guaranteed an offer",
+          "role can be performed remotely"
+        ]
+      },
+      "human_label": null,
+      "reviewed": false
+    }
+  ]
+}

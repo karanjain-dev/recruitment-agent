@@ -8,3 +8,6 @@ data/*
 !data/.gitkeep
 .DS_Store
 .deployment-private.json
+.eval-deployment-private.json
+evals/store/*.sqlite3*
+evals/data/calibration/*.report.json

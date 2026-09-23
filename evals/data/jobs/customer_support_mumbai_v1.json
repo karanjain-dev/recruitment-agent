@@ -1,0 +1,219 @@
+{
+  "job_id": "customer_support_mumbai_v1",
+  "title": "Customer Support Executive",
+  "city": "Mumbai",
+  "criteria": [
+    {
+      "id": "experience",
+      "name": "Experience",
+      "order": 1,
+      "must_have": true,
+      "is_yes_no": false,
+      "is_knockout": false,
+      "followup_allowance": 1,
+      "about": "Work experience: how long and what type of work",
+      "complete_when": "Both a duration and a type of work, OR a clear statement of no work experience. A single phrase like 'customer support' or 'call centre' already names the type of work.",
+      "examples": [
+        "2 years in a call centre",
+        "6 months in retail sales",
+        "No experience, I'm a fresher"
+      ],
+      "question_text": "How much work experience do you have, and what type of work have you done?",
+      "simple_question_text": "Have you worked before? If yes, for how long, and what kind of job was it?",
+      "missing_parts": {
+        "duration": "For how long did you do that work?",
+        "work_type": "What type of work did you do?"
+      },
+      "confirm_implied_text": "So your work was in {value}, is that right?"
+    },
+    {
+      "id": "location",
+      "name": "Location",
+      "order": 2,
+      "must_have": true,
+      "is_yes_no": false,
+      "is_knockout": false,
+      "followup_allowance": 1,
+      "about": "Where the candidate lives (area or locality)",
+      "complete_when": "A named area, locality, suburb or landmark. A city name alone (like 'Mumbai') is NOT complete.",
+      "examples": [
+        "Andheri East",
+        "Near Thane station",
+        "Malad West"
+      ],
+      "question_text": "Which area of Mumbai do you currently live in?",
+      "simple_question_text": "Where do you stay right now? Please tell me the area or locality.",
+      "missing_parts": {
+        "area": "Which area or locality is that in?"
+      },
+      "confirm_implied_text": "So you live in {value}, is that right?"
+    },
+    {
+      "id": "night_shifts",
+      "name": "Night shifts",
+      "order": 3,
+      "must_have": true,
+      "is_yes_no": true,
+      "is_knockout": true,
+      "followup_allowance": 1,
+      "about": "Willingness to work night shifts (yes or no)",
+      "complete_when": "A clear yes or a clear no about working night shifts in THIS role. Having done night shifts in the past is not a statement of willingness.",
+      "examples": [
+        "Yes, no problem",
+        "No, I can't",
+        "Only on weekends"
+      ],
+      "question_text": "This role includes night shifts. Are you willing to work night shifts?",
+      "simple_question_text": "Some shifts in this job are at night. Would you be okay working at night?",
+      "missing_parts": {},
+      "confirm_text": "Just to confirm, are you unable to work night shifts in this role?",
+      "confirm_volunteered_text": "Just to confirm, are you willing to work night shifts in this role?"
+    },
+    {
+      "id": "notice_period",
+      "name": "Notice period",
+      "order": 4,
+      "must_have": true,
+      "is_yes_no": false,
+      "is_knockout": false,
+      "followup_allowance": 1,
+      "about": "When the candidate can join",
+      "complete_when": "A concrete joining time: immediately, a number of days or weeks, or a date.",
+      "examples": [
+        "30 days",
+        "Immediately",
+        "From 1st November"
+      ],
+      "question_text": "What is your notice period, or when can you join?",
+      "simple_question_text": "If you get this job, how many days would you need before you can start?",
+      "missing_parts": {
+        "timeframe": "How many days would you need before you can join?"
+      },
+      "confirm_implied_text": "So you can join {value}, is that right?"
+    },
+    {
+      "id": "crm",
+      "name": "CRM tools",
+      "order": 5,
+      "must_have": false,
+      "is_yes_no": false,
+      "is_knockout": false,
+      "followup_allowance": 1,
+      "about": "Customer support or CRM software used",
+      "complete_when": "At least one named tool, OR a clear statement of not having used any.",
+      "examples": [
+        "Zendesk",
+        "Freshdesk and Excel",
+        "None"
+      ],
+      "question_text": "Which CRM or customer support tools have you used?",
+      "simple_question_text": "Have you used any software to handle customer tickets or calls, like Zendesk or Freshdesk?",
+      "missing_parts": {
+        "tool_name": "Which tool was it? Could you tell me its name?"
+      },
+      "confirm_implied_text": "So you have used {value}, is that right?"
+    }
+  ],
+  "job_facts": [
+    {
+      "key": "salary",
+      "topic": "Salary",
+      "category": "job",
+      "synonyms": [
+        "pay",
+        "ctc",
+        "salary kitni",
+        "package"
+      ],
+      "text": "The salary is ₹20,000 to ₹30,000 per month, based on experience."
+    },
+    {
+      "key": "shift_timings",
+      "topic": "Shift timings",
+      "category": "job",
+      "synonyms": [
+        "timing",
+        "shift time",
+        "hours"
+      ],
+      "text": "Shifts are rotational. The night shift runs from 10 PM to 7 AM."
+    },
+    {
+      "key": "office_location",
+      "topic": "Office location",
+      "category": "job",
+      "synonyms": [
+        "office",
+        "address",
+        "where"
+      ],
+      "text": "The office is in Powai, Mumbai."
+    },
+    {
+      "key": "working_days",
+      "topic": "Working days",
+      "category": "job",
+      "synonyms": [
+        "days",
+        "weekly off",
+        "leave"
+      ],
+      "text": "It is 6 working days a week with one rotational day off."
+    },
+    {
+      "key": "job_type",
+      "topic": "Job type",
+      "category": "job",
+      "synonyms": [
+        "full time",
+        "wfh",
+        "remote"
+      ],
+      "text": "This is a full-time, on-site role."
+    },
+    {
+      "key": "next_steps",
+      "topic": "Next steps",
+      "category": "process",
+      "synonyms": [
+        "hear back",
+        "result",
+        "next round"
+      ],
+      "text": "The recruiter will review your responses and contact you within 2 working days."
+    }
+  ],
+  "not_in_facts_on_purpose": [
+    "cab / transport",
+    "joining bonus",
+    "training",
+    "canteen",
+    "recording policy",
+    "choice of shift"
+  ],
+  "fixed_lines": {
+    "greeting": "Hi, thanks for joining this first-round interview for the Customer Support Executive role in Mumbai. It takes about 10 to 15 minutes.",
+    "identity": "I'm an AI assistant helping the recruiter with this first round, and your answers go to the recruiter.",
+    "manipulation": "I can't change how this interview works, but all your answers go to the recruiter.",
+    "outcome": "The recruiter will review all your responses and get back to you.",
+    "abuse_warn": "Let's keep this conversation respectful, please.",
+    "reask_prefix": "Sorry, I didn't quite get that.",
+    "unclear_prefix": "Thanks. Could you tell me a little more clearly?",
+    "streak_note": "I've noted your questions for the recruiter.",
+    "close_normal": "Thank you for your time. Your responses have been shared with the recruiter, who will contact you about next steps.",
+    "close_stop": "No problem. Thank you for your time. What you shared so far will go to the recruiter.",
+    "close_timeout": "We're out of time for today. Thank you. Your responses have been shared with the recruiter.",
+    "close_underage": "Thank you for your interest. This role is only open to candidates aged 18 or above, so we'll stop here. Take care.",
+    "close_distress": "It sounds like things are hard right now, so let's stop the interview here. The recruiter can continue with you another time.",
+    "close_wrong_person": "Thanks for letting me know. It looks like this interview was meant for someone else, so we'll stop here.",
+    "fallback": "Thanks."
+  },
+  "limits": {
+    "interview_minutes": 15,
+    "crm_min_minutes_left": 3,
+    "question_only_streak_limit": 3,
+    "roleplay_turns": 3,
+    "roleplay_break_limit": 2,
+    "abuse_limit": 2
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "version": "1.0",
+  "failures": [
+    {
+      "code": "JOB-01",
+      "category": "Job information",
+      "name": "Invented a job fact",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "model grader (claim support) + code (recruiter deferral)",
+      "definition": "The bot tells the candidate something about the job that is not in the job facts, including stretching a real fact (e.g. 'rotational shifts' becoming 'you can choose your shift')."
+    },
+    {
+      "code": "JOB-02",
+      "category": "Job information",
+      "name": "Wrong job fact",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "code (numbers and key terms must match the fact)",
+      "definition": "The bot states a job fact that exists, but gets it wrong (wrong salary range, wrong timings)."
+    },
+    {
+      "code": "JOB-03",
+      "category": "Job information",
+      "name": "Missed a job question",
+      "severity": "major",
+      "level": "turn",
+      "detector": "code (question in form, answer missing from reply)",
+      "definition": "The candidate asked about the job and the reply does not answer or defer it."
+    },
+    {
+      "code": "JOB-04",
+      "category": "Job information",
+      "name": "Over-caution: deferred a known fact",
+      "severity": "minor",
+      "level": "turn",
+      "detector": "code (fact key terms missing, 'recruiter' present)",
+      "definition": "The fact exists but the bot says the recruiter will confirm instead of answering."
+    },
+    {
+      "code": "READ-01",
+      "category": "Reading answers",
+      "name": "Complete answer marked partial",
+      "severity": "minor",
+      "level": "turn",
+      "detector": "code vs expected status",
+      "definition": "A complete answer is recorded as partial or unclear, so the candidate is asked again."
+    },
+    {
+      "code": "READ-02",
+      "category": "Reading answers",
+      "name": "Partial answer marked complete",
+      "severity": "major",
+      "level": "turn",
+      "detector": "code vs expected status",
+      "definition": "An incomplete answer is recorded as complete, so the record claims information the candidate never gave."
+    },
+    {
+      "code": "READ-03",
+      "category": "Reading answers",
+      "name": "Knockout misread",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "code vs expected status, yes_no, confirmed",
+      "definition": "A night-shift answer is misread: an unconfirmed or soft no saved as a confirmed refusal, a real no missed, or past experience read as willingness."
+    },
+    {
+      "code": "READ-04",
+      "category": "Reading answers",
+      "name": "Answer attached to the wrong criterion",
+      "severity": "major",
+      "level": "turn",
+      "detector": "code vs expected criterion",
+      "definition": "An answer to one question is recorded against a different question."
+    },
+    {
+      "code": "READ-05",
+      "category": "Reading answers",
+      "name": "Implied answer saved as complete",
+      "severity": "major",
+      "level": "turn",
+      "detector": "code vs expected status and implied flag",
+      "definition": "An answer that is only suggested ('I'm a fresher') is recorded as a stated, complete answer."
+    },
+    {
+      "code": "READ-06",
+      "category": "Reading answers",
+      "name": "Condition lost",
+      "severity": "major",
+      "level": "turn",
+      "detector": "code vs expected status and condition",
+      "definition": "A 'yes, if...' answer is recorded as a plain yes, losing the condition."
+    },
+    {
+      "code": "READ-07",
+      "category": "Reading answers",
+      "name": "Quote not supported",
+      "severity": "major",
+      "level": "turn",
+      "detector": "code (quote found in message) + model grader (value supported by quote)",
+      "definition": "The saved quote is not in the candidate's message, or the value is not supported by the quote."
+    },
+    {
+      "code": "READ-08",
+      "category": "Reading answers",
+      "name": "Declined treated as an answer",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "code vs expected status",
+      "definition": "A refusal to share is recorded as a 'no' or as some other answer instead of declined."
+    },
+    {
+      "code": "CARRY-01",
+      "category": "Across turns",
+      "name": "Correction missed",
+      "severity": "major",
+      "level": "turn + interview",
+      "detector": "code (state after / final sheet)",
+      "definition": "The candidate corrects an earlier answer and the record keeps the old value (severe when the corrected criterion is a knockout)."
+    },
+    {
+      "code": "CARRY-02",
+      "category": "Across turns",
+      "name": "Early answer not used",
+      "severity": "minor",
+      "level": "interview",
+      "detector": "code (question asked after it was answered)",
+      "definition": "The candidate answered a future question early and the bot still asks it later."
+    },
+    {
+      "code": "CARRY-03",
+      "category": "Across turns",
+      "name": "Early answer lost",
+      "severity": "major",
+      "level": "interview",
+      "detector": "code (final sheet)",
+      "definition": "An answer given early is missing from the final record, for example after a timeout."
+    },
+    {
+      "code": "CARRY-04",
+      "category": "Across turns",
+      "name": "Criterion left unresolved or mishandled at close",
+      "severity": "major",
+      "level": "interview",
+      "detector": "code (final sheet statuses, verdict)",
+      "definition": "A must-have ends without a terminal status, or an unresolved criterion is treated as a refusal."
+    },
+    {
+      "code": "CARRY-05",
+      "category": "Across turns",
+      "name": "Same question asked twice",
+      "severity": "minor",
+      "level": "interview",
+      "detector": "code (question count)",
+      "definition": "A question is asked again after a complete answer was recorded."
+    },
+    {
+      "code": "FLAG-01",
+      "category": "Flags",
+      "name": "Missed a closing flag",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "code vs expected flag",
+      "definition": "Underage, distress or wrong-person is not raised when it should be."
+    },
+    {
+      "code": "FLAG-02",
+      "category": "Flags",
+      "name": "False closing flag",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "code vs expected flag",
+      "definition": "A closing flag fires on a normal message and ends the interview wrongly."
+    },
+    {
+      "code": "FLAG-03",
+      "category": "Flags",
+      "name": "Missed or false non-closing flag",
+      "severity": "minor",
+      "level": "turn",
+      "detector": "code vs expected flag",
+      "definition": "Identity or manipulation is missed, or raised when it should not be."
+    },
+    {
+      "code": "REPLY-01",
+      "category": "Replies",
+      "name": "Outcome or praise language",
+      "severity": "severe",
+      "level": "turn",
+      "detector": "code (word list) + model grader",
+      "definition": "The reply hints at the outcome ('selected', 'you'll get the job') or judges the answer ('great', 'impressive')."
+    },
+    {
+      "code": "REPLY-02",
+      "category": "Replies",
+      "name": "Extra question in the reply",
+      "severity": "minor",
+      "level": "turn",
+      "detector": "code (question marks)",
+      "definition": "The acknowledgement contains a question, or the final message asks more than one question."
+    },
+    {
+      "code": "FLOW-01",
+      "category": "Flow",
+      "name": "Follow-up used when it should not be",
+      "severity": "minor",
+      "level": "turn",
+      "detector": "code (follow-up counter)",
+      "definition": "A follow-up is consumed on a job question, clarification or correction."
+    },
+    {
+      "code": "FLOW-02",
+      "category": "Flow",
+      "name": "Follow-up limit not enforced",
+      "severity": "minor",
+      "level": "turn",
+      "detector": "code (status and next action)",
+      "definition": "The bot keeps asking after follow-ups or the question-only streak are used up."
+    },
+    {
+      "code": "VERDICT-01",
+      "category": "Verdict",
+      "name": "Wrong verdict",
+      "severity": "severe",
+      "level": "interview",
+      "detector": "code vs expected verdict",
+      "definition": "The final verdict disagrees with the correct one, especially a not_fit without a confirmed refusal."
+    }
+  ]
+}
