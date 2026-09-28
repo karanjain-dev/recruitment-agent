@@ -133,7 +133,8 @@ def _cost_and_usage(traces, verdict, config, assertions=None):
         if assertion.get("grader") and isinstance(actual, dict) and actual.get("model_id"):
             grader_calls.append({"call": "grader:" + assertion["grader"], "model": actual["model_id"],
                                  "input_tokens": actual.get("input_tokens", 0),
-                                 "output_tokens": actual.get("output_tokens", 0)})
+                                 "output_tokens": actual.get("output_tokens", 0),
+                                 "usage_complete": actual.get("usage_complete", True)})
     calls += grader_calls
     input_tokens = sum(call.get("input_tokens", call.get("prompt_tokens", 0)) or 0 for call in calls)
     output_tokens = sum(call.get("output_tokens", call.get("completion_tokens", 0)) or 0 for call in calls)
@@ -141,6 +142,7 @@ def _cost_and_usage(traces, verdict, config, assertions=None):
     prices = config.get("price_table", {})
     cost = 0.0
     unknown = []
+    usage_complete = all(call.get("usage_complete") is not False for call in calls)
     for call in calls:
         model = call.get("model") or config.get("model")
         # Provider responses can return a dated revision of a named configuration.
@@ -155,7 +157,8 @@ def _cost_and_usage(traces, verdict, config, assertions=None):
             cost += ((call.get("input_tokens", 0) or 0) * pricing["input_per_million"]
                      + (call.get("output_tokens", 0) or 0) * pricing["output_per_million"]) / 1_000_000
     return {"input_tokens": input_tokens, "output_tokens": output_tokens, "total_tokens": input_tokens + output_tokens,
-            "model_latency_ms": latency, "cost_usd": None if unknown else cost,
+            "model_latency_ms": latency, "cost_usd": None if unknown or not usage_complete else cost,
+            "usage_complete": usage_complete,
             "cost_known_usd": cost, "unpriced_models": sorted(set(unknown)), "usage": calls}
 
 
